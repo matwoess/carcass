@@ -15,13 +15,13 @@ class Carcass {
         id: Long,
         type: AnimalType,
         description: String,
-        reportedat: Date,
+        reportedAt: Date,
         location: LatLng
     ) {
         this.id = id
         this.type = type
         this.description = description
-        this.reportedat = reportedat
+        this.reportedat = reportedAt
         this.location = location
     }
 }

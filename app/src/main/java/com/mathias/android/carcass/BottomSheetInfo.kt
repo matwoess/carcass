@@ -1,12 +1,17 @@
 package com.mathias.android.carcass
 
+import android.app.Dialog
+import android.location.Geocoder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class BottomSheetInfo : BottomSheetDialogFragment() {
@@ -36,6 +41,11 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initUI(view)
+        initButtons(view)
+    }
+
+    private fun initUI(view: View) {
         txtType = view.findViewById(R.id.txt_type)
         txtDescription = view.findViewById(R.id.txt_description)
         txtReported = view.findViewById(R.id.txt_reported)
@@ -46,7 +56,29 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         btnEdit = view.findViewById(R.id.btn_edit)
         txtType.text = carcass.type?.name
         txtDescription.text = carcass.description
-        txtReported.text = carcass.reportedat.toString()
-        txtLocation.text = carcass.location.toString()
+        val dateFormat = SimpleDateFormat("yyyy-mm-dd hh:mm");
+        txtReported.text = dateFormat.format(carcass.reportedat!!)
+        val geocoder = Geocoder(context, Locale.getDefault())
+        txtLocation.text = geocoder.getFromLocation(
+            carcass.location!!.latitude,
+            carcass.location!!.longitude,
+            1
+        )[0].thoroughfare
+    }
+
+    private fun initButtons(view: View) {
+        btnShowPicture.setOnClickListener { showPicture(view) }
+    }
+
+    private fun showPicture(view: View) {
+        val settingsDialog = Dialog(view.context)
+        settingsDialog.window!!.requestFeature(Window.FEATURE_NO_TITLE)
+        settingsDialog.setContentView(
+            layoutInflater.inflate(
+                R.layout.image_view
+                , null
+            )
+        )
+        settingsDialog.show()
     }
 }

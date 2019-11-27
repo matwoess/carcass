@@ -1,6 +1,6 @@
 package com.mathias.android.carcass
 
-import android.location.Geocoder
+import android.location.Address
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
+import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -60,15 +61,13 @@ class AddActivity : AppCompatActivity() {
         spnType.adapter = adapter
         val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm");
         txtTime.text = dateFormat.format(Date())
-        val geocoder = Geocoder(this, Locale.getDefault())
         Log.i(TAG, geocoder.toString())
-        /*val addresses: List<Address> = geocoder.getFromLocation(
+        val addresses: List<Address> = geocoder.getFromLocation(
             location.latitude,
             location.longitude,
             1
         )
-        txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"*/
-        txtLocation.text = location.toString()
+        txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
     }
 
     companion object {

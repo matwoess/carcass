@@ -1,7 +1,7 @@
 package com.mathias.android.carcass
 
 import android.app.Dialog
-import android.location.Geocoder
+import android.location.Address
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,8 +11,8 @@ import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import java.text.SimpleDateFormat
-import java.util.*
 
 
 class BottomSheetInfo : BottomSheetDialogFragment() {
@@ -58,15 +58,13 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         txtDescription.text = carcass.description
         val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm");
         txtReported.text = dateFormat.format(carcass.reportedAt!!)
-        val geocoder = Geocoder(context, Locale.getDefault())
         Log.i(TAG, geocoder.toString())
-        /*val addresses: List<Address> = geocoder.getFromLocation(
+        val addresses: List<Address> = geocoder.getFromLocation(
             carcass.location!!.latitude,
             carcass.location!!.longitude,
             1
         )
-        txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"*/
-        txtLocation.text = carcass.location.toString()
+        txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
     }
 
     private fun initButtons(view: View) {

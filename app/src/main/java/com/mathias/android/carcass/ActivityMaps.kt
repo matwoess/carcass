@@ -3,9 +3,11 @@ package com.mathias.android.carcass
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
@@ -21,6 +23,8 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
+    private var requestingLocationUpdates: Boolean = true
+    private lateinit var locationRequest: LocationRequest
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
@@ -31,25 +35,43 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+        geocoder = Geocoder(applicationContext, Locale.getDefault())
         mFab = findViewById(R.id.floatingActionButton)
         mFab.setOnClickListener { handleFabClick() }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-
+        locationRequest = LocationRequest()
+        locationRequest.interval = 5 * 1000
+        locationRequest.fastestInterval = 1 * 1000
+        locationRequest.maxWaitTime = 10 * 1000
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
-                locationResult ?: return
-                Log.i(TAG, "got %d locations".format(locationResult.locations.size))
-                if (locationResult.lastLocation != null) {
-                    lastLocation = LatLng(
-                        locationResult.lastLocation.latitude,
-                        locationResult.lastLocation.longitude
-                    )
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 12f))
-                }
+                updateLocation(locationResult)
             }
+        }
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        Log.i(TAG, "map ready")
+        mMap = googleMap
+        mMap.uiSettings.isZoomControlsEnabled = true
+        initLocation()
+        mMap.setOnMarkerClickListener { latLng -> handleMarkerClick(mMap, latLng) }
+    }
+
+    private fun updateLocation(locationResult: LocationResult?) {
+        Log.i(TAG, "updateLocation")
+        Toast.makeText(applicationContext, "location received", Toast.LENGTH_SHORT).show()
+        locationResult ?: return
+        Log.i(TAG, "got %d location(s)".format(locationResult.locations.size))
+        if (locationResult.lastLocation != null) {
+            lastLocation = LatLng(
+                locationResult.lastLocation.latitude,
+                locationResult.lastLocation.longitude
+            )
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 12f))
+            if (carcasses.isEmpty()) insertDemoData(lastLocation!!)
         }
     }
 
@@ -61,51 +83,60 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         startActivityForResult(intent, ADD_REQUEST_CODE)
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        updateLocation()
-        mMap.uiSettings.isZoomControlsEnabled = true
-        mMap.isMyLocationEnabled = true
-        mMap.setOnMarkerClickListener { latLng -> handleMarkerClick(mMap, latLng) }
-        val locationRequest = LocationRequest()
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
-
     private fun handleMarkerClick(mMap: GoogleMap, marker: Marker): Boolean {
         showBottomSheet(carcasses[marker]!!)
         return true
     }
 
-    private fun updateLocation() {
+    private fun initLocation() {
+        Log.i(TAG, "init location")
+        if (!checkPermissions()) return
+        mMap.isMyLocationEnabled = true
+        startLocationUpdates()
+    }
+
+    private fun checkPermissions(): Boolean {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            Log.i(TAG, "ask for permissions")
             ActivityCompat.requestPermissions(
                 this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
                 REQUEST_PERM_LOCATION
             )
-        } else {
-            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
-                if (location != null) {
-                    Log.i(TAG, "got last known location")
-                    val currentLatLng = LatLng(location.latitude, location.longitude)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
-                    insertDemoData(currentLatLng)
-                    lastLocation = currentLatLng
-                }
-            }
+            return false
         }
+        Log.i(TAG, "permissions exist")
+        return true
     }
 
     private fun showBottomSheet(carcass: Carcass) {
         val sheet = BottomSheetInfo().newInstance(carcass)
         sheet.show(this.supportFragmentManager, "Carcass Info")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (requestingLocationUpdates) startLocationUpdates()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
+
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+        requestingLocationUpdates = false
+    }
+
+    private fun startLocationUpdates() {
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+            locationCallback,
+            Looper.getMainLooper())
+        requestingLocationUpdates = true
     }
 
     private fun insertDemoData(userPos: LatLng) {
@@ -140,6 +171,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     }
 
     companion object {
+        lateinit var geocoder: Geocoder
         private const val TAG = "ActivityMaps";
         private const val REQUEST_PERM_LOCATION = 100
         private const val ADD_REQUEST_CODE = 200

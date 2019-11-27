@@ -48,7 +48,7 @@ class AddActivity : AppCompatActivity() {
     }
 
     private fun initUI() {
-        spnType = findViewById(R.id.txt_animal_type)
+        spnType = findViewById(R.id.spn_animal_type)
         txtDescription = findViewById(R.id.txt_animal_description)
         txtTime = findViewById(R.id.txt_current_time)
         txtLocation = findViewById(R.id.txt_current_location)

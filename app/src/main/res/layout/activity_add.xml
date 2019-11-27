@@ -72,7 +72,7 @@
         app:layout_constraintTop_toBottomOf="@+id/lbl_animal_type" />
 
     <Spinner
-        android:id="@+id/txt_animal_type"
+        android:id="@+id/spn_animal_type"
         android:layout_width="163dp"
         android:layout_height="41dp"
         android:text="Hedgehog"
@@ -92,7 +92,7 @@
         app:layout_constraintTop_toBottomOf="@+id/lbl_animal_description" />
 
     <ImageView
-        android:id="@+id/image_view_report"
+        android:id="@+id/img_view_report"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"

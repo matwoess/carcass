@@ -1,9 +1,11 @@
 package com.mathias.android.carcass
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
@@ -14,6 +16,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -21,32 +24,49 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
+    private lateinit var mFab: FloatingActionButton
     private var carcasses: HashMap<Marker, Carcass> = HashMap()
+    private var lastLocation: LatLng? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+        mFab = findViewById(R.id.floatingActionButton)
+        mFab.setOnClickListener { handleFabClick() }
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
-                for (location in locationResult.locations) {
-                    val currentLatLng = LatLng(location.latitude, location.longitude)
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+                Log.i(TAG, "got %d locations".format(locationResult.locations.size))
+                if (locationResult.lastLocation != null) {
+                    lastLocation = LatLng(
+                        locationResult.lastLocation.latitude,
+                        locationResult.lastLocation.longitude
+                    )
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 12f))
                 }
             }
         }
     }
 
+    private fun handleFabClick() {
+        val intent = Intent(this, AddActivity::class.java).apply {
+            putExtra("location_lat", lastLocation?.latitude)
+            putExtra("location_lng", lastLocation?.longitude)
+        }
+        startActivityForResult(intent, ADD_REQUEST_CODE)
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        updateLocation()
         mMap.uiSettings.isZoomControlsEnabled = true
         mMap.isMyLocationEnabled = true
         mMap.setOnMarkerClickListener { latLng -> handleMarkerClick(mMap, latLng) }
-        updateLocation()
         val locationRequest = LocationRequest()
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
@@ -73,9 +93,11 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         } else {
             fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
                 if (location != null) {
+                    Log.i(TAG, "got last known location")
                     val currentLatLng = LatLng(location.latitude, location.longitude)
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
                     insertDemoData(currentLatLng)
+                    lastLocation = currentLatLng
                 }
             }
         }
@@ -118,6 +140,8 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     }
 
     companion object {
+        private const val TAG = "ActivityMaps";
         private const val REQUEST_PERM_LOCATION = 100
+        private const val ADD_REQUEST_CODE = 200
     }
 }

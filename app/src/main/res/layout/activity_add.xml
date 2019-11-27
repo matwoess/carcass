@@ -1,140 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/sheet_info"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/lyt_add_activity"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
+    android:layout_height="match_parent"
     android:padding="16dp"
-    app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+    tools:context=".AddActivity">
 
     <RelativeLayout
-        android:id="@+id/grp_lbl"
+        android:id="@+id/grp_lbl_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/grp_btn"
+        app:layout_constraintBottom_toTopOf="@id/grp_btn_add"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+
         <TextView
-            android:id="@+id/lbl_type"
+            android:id="@+id/lbl_current_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="Type:"
+            android:text="Current location:" />
+
+        <TextView
+            android:id="@+id/lbl_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lbl_current_location"
+            android:padding="8dp"
+            android:text="Time of reporting:" />
+
+
+        <TextView
+            android:id="@+id/lbl_animal_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lbl_time"
+            android:padding="8dp"
+            android:text="Animal Type:"
             android:textAlignment="textStart" />
 
         <TextView
-            android:id="@+id/lbl_description"
+            android:id="@+id/lbl_animal_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/lbl_type"
+            android:layout_below="@id/lbl_animal_type"
             android:padding="8dp"
             android:text="Description:" />
 
-        <TextView
-            android:id="@+id/lbl_reported"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/lbl_description"
-            android:padding="8dp"
-            android:text="Reported at:" />
-
-        <TextView
-            android:id="@+id/lbl_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/lbl_reported"
-            android:padding="8dp"
-            android:text="Location:" />
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/grp_txt"
+        android:id="@+id/grp_txt_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/grp_btn"
-        app:layout_constraintStart_toEndOf="@id/grp_lbl"
+        app:layout_constraintBottom_toTopOf="@id/grp_btn_add"
+        app:layout_constraintStart_toEndOf="@id/grp_lbl_add"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/txt_type"
+            android:id="@+id/txt_current_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="Hedgehog"
+            android:text="Eferdinger Str. 2, 4020 Linz, Austria"
             android:textAlignment="textStart"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/txt_description"
+            android:id="@+id/txt_current_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/txt_type"
-            android:padding="8dp"
-            android:text="A squashed hedgehog next to the road"
-            android:textAlignment="textStart"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txt_reported"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/txt_description"
+            android:layout_below="@id/txt_current_location"
             android:padding="8dp"
             android:text="02.11.2019 15:30:03"
             android:textAlignment="textStart"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/txt_location"
+        <Spinner
+            android:id="@+id/txt_animal_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/txt_reported"
+            android:layout_below="@id/txt_current_time"
             android:padding="8dp"
-            android:text="Eferdinger Str. 2, 4020 Linz, Austria"
+            android:text="Hedgehog"
             android:textAlignment="textStart"
             android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/txt_animal_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txt_animal_type"
+            android:hint="Typ a short description"
+            android:padding="8dp"
+            android:textAlignment="textStart"
+            android:textStyle="bold" />
+
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/grp_btn"
-        android:layout_width="match_parent"
+        android:id="@+id/grp_btn_add"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/grp_lbl">
+        app:layout_constraintTop_toBottomOf="@id/grp_lbl_add">
 
         <Button
-            android:id="@+id/btn_show_picture"
+            android:id="@+id/btn_take_picture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Show picture" />
+            android:text="Add picture" />
 
         <Button
-            android:id="@+id/btn_edit"
-            android:layout_width="wrap_content"
+            android:id="@+id/btn_done"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/btn_show_picture"
-            android:text="Edit" />
-
-        <Button
-            android:id="@+id/btn_remove"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_show_picture"
-            android:layout_centerHorizontal="true"
-            android:text="Remove" />
-
-        <Button
-            android:id="@+id/btn_report"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_show_picture"
+            android:layout_below="@id/btn_take_picture"
             android:layout_alignParentEnd="true"
-            android:text="Report" />
+            android:text="Done" />
     </RelativeLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,7 @@ package com.mathias.android.carcass
 import android.app.Dialog
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +16,6 @@ import java.util.*
 
 
 class BottomSheetInfo : BottomSheetDialogFragment() {
-
     private lateinit var txtType: TextView
     private lateinit var txtDescription: TextView
     private lateinit var txtReported: TextView
@@ -52,18 +52,21 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         txtLocation = view.findViewById(R.id.txt_location)
         btnShowPicture = view.findViewById(R.id.btn_show_picture)
         btnRemove = view.findViewById(R.id.btn_remove)
-        btnReport = view.findViewById(R.id.btn_remove)
+        btnReport = view.findViewById(R.id.btn_report)
         btnEdit = view.findViewById(R.id.btn_edit)
         txtType.text = carcass.type?.name
         txtDescription.text = carcass.description
-        val dateFormat = SimpleDateFormat("yyyy-mm-dd hh:mm");
-        txtReported.text = dateFormat.format(carcass.reportedat!!)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm");
+        txtReported.text = dateFormat.format(carcass.reportedAt!!)
         val geocoder = Geocoder(context, Locale.getDefault())
-        txtLocation.text = geocoder.getFromLocation(
+        Log.i(TAG, geocoder.toString())
+        /*val addresses: List<Address> = geocoder.getFromLocation(
             carcass.location!!.latitude,
             carcass.location!!.longitude,
             1
-        )[0].thoroughfare
+        )
+        txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"*/
+        txtLocation.text = carcass.location.toString()
     }
 
     private fun initButtons(view: View) {
@@ -80,5 +83,9 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
             )
         )
         settingsDialog.show()
+    }
+
+    companion object {
+        private const val TAG = "BottomSheetInfo"
     }
 }

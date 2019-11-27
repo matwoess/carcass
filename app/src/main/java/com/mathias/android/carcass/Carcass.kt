@@ -12,7 +12,7 @@ class Carcass(
 ) {
     var type: AnimalType? = type
     var description: String? = description
-    var reportedat: Date? = reportedAt
+    var reportedAt: Date? = reportedAt
     var location: LatLng? = location
 }
 

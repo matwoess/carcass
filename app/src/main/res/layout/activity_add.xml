@@ -8,121 +8,120 @@
     android:padding="16dp"
     tools:context=".AddActivity">
 
-    <RelativeLayout
-        android:id="@+id/grp_lbl_add"
+    <TextView
+        android:id="@+id/lbl_current_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/grp_btn_add"
+        android:padding="12dp"
+        android:text="Current location:"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-
-        <TextView
-            android:id="@+id/lbl_current_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Current location:" />
-
-        <TextView
-            android:id="@+id/lbl_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/lbl_current_location"
-            android:padding="8dp"
-            android:text="Time of reporting:" />
-
-
-        <TextView
-            android:id="@+id/lbl_animal_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/lbl_time"
-            android:padding="8dp"
-            android:text="Animal Type:"
-            android:textAlignment="textStart" />
-
-        <TextView
-            android:id="@+id/lbl_animal_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/lbl_animal_type"
-            android:padding="8dp"
-            android:text="Description:" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/grp_txt_add"
+    <TextView
+        android:id="@+id/txt_current_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/grp_btn_add"
-        app:layout_constraintStart_toEndOf="@id/grp_lbl_add"
-        app:layout_constraintTop_toTopOf="parent">
+        android:padding="12dp"
+        android:text="Eferdinger Str. 2, 4020 Linz, Austria"
+        android:textAlignment="textStart"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/lbl_time"
+        app:layout_constraintTop_toTopOf="@+id/lbl_current_location" />
 
-        <TextView
-            android:id="@+id/txt_current_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Eferdinger Str. 2, 4020 Linz, Austria"
-            android:textAlignment="textStart"
-            android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/txt_current_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/txt_current_location"
-            android:padding="8dp"
-            android:text="02.11.2019 15:30:03"
-            android:textAlignment="textStart"
-            android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/txt_animal_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/txt_current_time"
-            android:padding="8dp"
-            android:text="Hedgehog"
-            android:textAlignment="textStart"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/txt_animal_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/txt_animal_type"
-            android:hint="Typ a short description"
-            android:padding="8dp"
-            android:textAlignment="textStart"
-            android:textStyle="bold" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/grp_btn_add"
+    <TextView
+        android:id="@+id/lbl_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="Time of reporting:"
+        app:layout_constraintStart_toEndOf="@id/lbl_time"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/txt_current_time"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <TextView
+        android:id="@+id/txt_current_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="02.11.2019 15:30:03"
+        android:textAlignment="textStart"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/txt_current_location"
+        app:layout_constraintTop_toBottomOf="@+id/lbl_current_location" />
+
+
+    <TextView
+        android:id="@+id/lbl_animal_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="Type:"
+        android:textAlignment="textStart"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lbl_time" />
+
+    <TextView
+        android:id="@+id/lbl_animal_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="Description:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lbl_animal_type" />
+
+    <Spinner
+        android:id="@+id/txt_animal_type"
+        android:layout_width="163dp"
+        android:layout_height="41dp"
+        android:text="Hedgehog"
+        app:layout_constraintBottom_toBottomOf="@+id/lbl_animal_type"
+        app:layout_constraintStart_toEndOf="@+id/lbl_time"
+        app:layout_constraintTop_toBottomOf="@+id/txt_current_time" />
+
+    <EditText
+        android:id="@+id/txt_animal_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Typ a short description"
+        android:padding="12dp"
+        android:textAlignment="textStart"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lbl_animal_description" />
+
+    <ImageView
+        android:id="@+id/image_view_report"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="Dead animal"
+        android:scaleType="fitXY"
+        android:src="@drawable/no_image"
+        app:layout_constraintBottom_toTopOf="@+id/btn_take_picture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_take_picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add picture"
+        app:layout_constraintBottom_toTopOf="@+id/btn_done"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_done"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_take_picture"
+        android:layout_alignParentEnd="true"
+        android:text="Done"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/grp_lbl_add">
-
-        <Button
-            android:id="@+id/btn_take_picture"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add picture" />
-
-        <Button
-            android:id="@+id/btn_done"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_take_picture"
-            android:layout_alignParentEnd="true"
-            android:text="Done" />
-    </RelativeLayout>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

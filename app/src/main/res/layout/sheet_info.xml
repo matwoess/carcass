@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_type"
             android:padding="8dp"
-            android:text="A squashed hedgehog next to the road"
+            android:text="A squashed hedgehog next to ..."
             android:textAlignment="textStart"
             android:textStyle="bold" />
 

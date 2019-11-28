@@ -99,6 +99,7 @@
         android:adjustViewBounds="true"
         android:contentDescription="Dead animal"
         android:scaleType="fitXY"
+        android:maxHeight="220dp"
         android:src="@drawable/no_image"
         app:layout_constraintBottom_toTopOf="@+id/btn_take_picture"
         app:layout_constraintEnd_toEndOf="parent"

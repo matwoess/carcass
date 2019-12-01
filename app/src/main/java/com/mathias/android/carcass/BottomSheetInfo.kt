@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
+import com.mathias.android.carcass.model.Carcass
 import java.text.SimpleDateFormat
 
 

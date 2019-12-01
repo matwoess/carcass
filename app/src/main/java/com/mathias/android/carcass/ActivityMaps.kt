@@ -18,8 +18,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
+import com.mathias.android.carcass.model.Carcass
 import java.util.*
-import kotlin.collections.HashMap
 
 class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
@@ -28,8 +29,9 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationCallback: LocationCallback
     private var requestingLocationUpdates: Boolean = true
     private lateinit var mFab: FloatingActionButton
-    private var carcasses: HashMap<Marker, Carcass> = HashMap()
     private var lastLocation: LatLng? = null
+
+    private val fireDBHandler: FireDBHelper = FireDBHelper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +56,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         Log.i(TAG, "map ready")
         mMap = googleMap
+        fireDBHandler.initFirebaseDB(mMap)
         mMap.uiSettings.isZoomControlsEnabled = true
         initLocation()
         mMap.setOnMarkerClickListener { latLng -> handleMarkerClick(mMap, latLng) }
@@ -70,7 +73,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
                 locationResult.lastLocation.longitude
             )
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 12f))
-            if (carcasses.isEmpty()) insertDemoData(lastLocation!!, mMap, carcasses)
+            if (carcasses.isEmpty()) fireDBHandler.insertDemoData(lastLocation!!, carcasses, mMap)
         }
     }
 

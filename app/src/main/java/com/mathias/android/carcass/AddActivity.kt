@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.google.android.gms.maps.model.LatLng
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
+import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -53,7 +54,7 @@ class AddActivity : AppCompatActivity() {
         btnDone = findViewById(R.id.btn_done)
         val adapter =
             ArrayAdapter<CharSequence>(this, R.layout.support_simple_spinner_dropdown_item)
-        AnimalType.values().forEach { t -> adapter.add(t.name) }
+        animalTypes.forEach { t -> adapter.add(t.name) }
         adapter.add("Other...")
         spnType.adapter = adapter
         val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm");

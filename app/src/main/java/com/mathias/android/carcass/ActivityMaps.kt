@@ -7,6 +7,9 @@ import android.location.Geocoder
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -18,7 +21,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
+import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
+import com.mathias.android.carcass.FireDBHelper.Companion.markers
 import com.mathias.android.carcass.model.Carcass
 import java.util.*
 
@@ -73,7 +77,6 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
                 locationResult.lastLocation.longitude
             )
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLocation, 12f))
-            if (carcasses.isEmpty()) fireDBHandler.insertDemoData(lastLocation!!, carcasses, mMap)
         }
     }
 
@@ -86,7 +89,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun handleMarkerClick(mMap: GoogleMap, marker: Marker): Boolean {
-        showBottomSheet(carcasses[marker]!!)
+        showBottomSheet(markers[marker]!!)
         return true
     }
 
@@ -117,6 +120,22 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     private fun showBottomSheet(carcass: Carcass) {
         val sheet = BottomSheetInfo().newInstance(carcass)
         sheet.show(this.supportFragmentManager, "Carcass Info")
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu_map, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.demo_data -> {
+                if (animalTypes.isNotEmpty()) fireDBHandler.insertDemoData(lastLocation!!, mMap)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onResume() {

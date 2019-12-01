@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class Carcass {
-    var id: Long? = null
+    var id: String? = null
     var type: AnimalType? = null
     var description: String? = null
     var reportedAt: Date? = null
@@ -13,10 +13,10 @@ class Carcass {
 
     constructor()
     constructor(
-        id: Long,
-        type: AnimalType,
-        description: String,
-        reportedAt: Date,
+        id: String,
+        type: AnimalType?,
+        description: String?,
+        reportedAt: Date?,
         location: LatLng
     ) {
         this.id = id
@@ -24,7 +24,6 @@ class Carcass {
         this.description = description
         this.reportedAt = reportedAt
         this.location = location
-
     }
 
     fun toCarcassDB(): CarcassDB {

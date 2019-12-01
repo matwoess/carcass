@@ -11,11 +11,12 @@ class CarcassDB {
     var location: LocationDB? = null
 
     constructor() {}
-    constructor(id: String,
-                type: String,
-                description: String,
-                reportedAt: String,
-                location: LocationDB
+    constructor(
+        id: String,
+        type: String,
+        description: String,
+        reportedAt: String,
+        location: LocationDB
     ) {
         this.id = id
         this.type = type
@@ -28,7 +29,7 @@ class CarcassDB {
     fun toCarcass(): Carcass {
         var type = AnimalType(this.type!!)
         return Carcass(
-            this.id!!.toLong(),
+            this.id!!,
             type,
             this.description!!,
             SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(this.reportedAt),

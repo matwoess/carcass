@@ -35,8 +35,6 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mFab: FloatingActionButton
     private var lastLocation: LatLng? = null
 
-    private val fireDBHandler: FireDBHelper = FireDBHelper()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -60,7 +58,8 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         Log.i(TAG, "map ready")
         mMap = googleMap
-        fireDBHandler.initFirebaseDB(mMap)
+        fireDBHandler = FireDBHelper(mMap)
+        fireDBHandler.initFirebaseDB()
         mMap.uiSettings.isZoomControlsEnabled = true
         initLocation()
         mMap.setOnMarkerClickListener { latLng -> handleMarkerClick(mMap, latLng) }
@@ -131,7 +130,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.demo_data -> {
-                if (animalTypes.isNotEmpty()) fireDBHandler.insertDemoData(lastLocation!!, mMap)
+                if (animalTypes.isNotEmpty()) fireDBHandler.insertDemoData(lastLocation!!)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -167,5 +166,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         private const val TAG = "ActivityMaps";
         private const val REQUEST_PERM_LOCATION = 100
         private const val ADD_REQUEST_CODE = 200
+
+        lateinit var fireDBHandler: FireDBHelper
     }
 }

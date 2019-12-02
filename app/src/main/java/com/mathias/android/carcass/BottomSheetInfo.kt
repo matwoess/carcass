@@ -11,6 +11,7 @@ import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.mathias.android.carcass.ActivityMaps.Companion.fireDBHandler
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import com.mathias.android.carcass.model.Carcass
 import java.text.SimpleDateFormat
@@ -70,6 +71,12 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
 
     private fun initButtons(view: View) {
         btnShowPicture.setOnClickListener { showPicture(view) }
+        btnRemove.setOnClickListener { deleteCarcass() }
+    }
+
+    private fun deleteCarcass() {
+        fireDBHandler.removeCarcass(carcass)
+        this.dismiss()
     }
 
     private fun showPicture(view: View) {

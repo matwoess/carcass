@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class Carcass {
-    var id: String? = null
     var type: AnimalType? = null
     var description: String? = null
     var reportedAt: Date? = null
@@ -13,13 +12,11 @@ class Carcass {
 
     constructor()
     constructor(
-        id: String,
         type: AnimalType?,
         description: String?,
         reportedAt: Date?,
         location: LatLng
     ) {
-        this.id = id
         this.type = type
         this.description = description
         this.reportedAt = reportedAt
@@ -30,7 +27,6 @@ class Carcass {
         var type =
             AnimalType(this.type.toString())
         return CarcassDB(
-            this.id!!.toString(),
             type.toString(),
             this.description!!,
             SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(this.reportedAt!!),
@@ -44,8 +40,6 @@ class Carcass {
     override fun toString(): String {
         return StringBuilder()
             .append("[")
-            .append(id)
-            .append(", ")
             .append(type)
             .append(", ")
             .append(description)
@@ -55,5 +49,34 @@ class Carcass {
             .append(location)
             .append("]")
             .toString()
+    }
+
+    fun updateValues(c: Carcass) {
+        this.type = c.type
+        this.location = c.location
+        this.description = c.description
+        this.reportedAt =  c.reportedAt
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Carcass
+
+        if (type != other.type) return false
+        if (description != other.description) return false
+        if (reportedAt != other.reportedAt) return false
+        if (location != other.location) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = type?.hashCode() ?: 0
+        result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + (reportedAt?.hashCode() ?: 0)
+        result = 31 * result + (location?.hashCode() ?: 0)
+        return result
     }
 }

@@ -54,7 +54,7 @@ class AddActivity : AppCompatActivity() {
         btnDone = findViewById(R.id.btn_done)
         val adapter =
             ArrayAdapter<CharSequence>(this, R.layout.support_simple_spinner_dropdown_item)
-        animalTypes.forEach { t -> adapter.add(t.name) }
+        animalTypes.values.forEach { t -> adapter.add(t.name) }
         adapter.add("Other...")
         spnType.adapter = adapter
         val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm");

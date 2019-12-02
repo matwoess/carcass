@@ -15,57 +15,56 @@ import kotlin.collections.HashMap
 class FireDBHelper {
     private lateinit var mDBCarcassRef: DatabaseReference
     private lateinit var mDBAnimalTypeRef: DatabaseReference
+    private val mMap: GoogleMap
 
-    fun initFirebaseDB(mMap: GoogleMap) {
-        Log.i(TAG, "initialize Firebase DB")
-        mDBAnimalTypeRef = FirebaseDatabase.getInstance().reference.child("animalTypes")
-        val animalTypeListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                var t: GenericTypeIndicator<HashMap<String, AnimalType>> = object :
-                    GenericTypeIndicator<HashMap<String, AnimalType>>() {}
-                val value: HashMap<String, AnimalType>? = dataSnapshot.getValue(t)
-                Log.d("Value is: ", value.toString())
-                if (value != null) {
-                    animalTypes = value.values.toSet()
-                    Log.d("Animals after: ", animalTypes.toString())
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.w("Failed to read value.", error.toException())
-            }
-        }
-        mDBAnimalTypeRef.addValueEventListener(animalTypeListener)
-        mDBCarcassRef = FirebaseDatabase.getInstance().reference.child("carcasses")
-        val carcassListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                var t: GenericTypeIndicator<HashMap<String, CarcassDB>> = object :
-                    GenericTypeIndicator<HashMap<String, CarcassDB>>() {}
-                val value: HashMap<String, CarcassDB>? = dataSnapshot.getValue(t)
-                Log.d("Value is: ", value.toString())
-                if (value != null) {
-                    for (entry in value) {
-                        if (!carcasses.containsKey(entry.key)) {
-                            val c = entry.value.toCarcass()
-                            carcasses[c.id!!] = c
-                            addMarker(c.location!!, c, mMap)
-                        }
-                    }
-                    Log.d("Carcasses after: ", carcasses.toString())
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.w("Failed to read value.", error.toException())
-            }
-        }
-        mDBCarcassRef.addValueEventListener(carcassListener)
+    constructor(map: GoogleMap) {
+        mMap = map
     }
 
-    fun insertDemoData(
-        userPos: LatLng,
-        mMap: GoogleMap
-    ) {
+    fun initFirebaseDB() {
+        Log.i(TAG, "initialize Firebase DB")
+        mDBAnimalTypeRef = FirebaseDatabase.getInstance().reference.child("animalTypes")
+        mDBCarcassRef = FirebaseDatabase.getInstance().reference.child("carcasses")
+        mDBAnimalTypeRef.addChildEventListener(AnimalTypeListener())
+        mDBCarcassRef.addChildEventListener(CarcassListener())
+    }
+
+    private fun pushCarcass(carcass: Carcass): String {
+        val ref = mDBCarcassRef.push()
+        ref.setValue(carcass.toCarcassDB())
+        return ref.key!!
+    }
+
+    fun removeCarcass(carcass: Carcass): Boolean {
+        val entry = carcasses.entries.stream()
+            .filter { e -> e.value == carcass }
+            .findFirst()
+            .orElse(null)
+        return mDBCarcassRef.child(entry.key).removeValue().isSuccessful
+    }
+
+    fun addMarker(
+        ref: String,
+        carcass: Carcass
+    ): Marker {
+        val marker =
+            mMap.addMarker(MarkerOptions().position(carcass.location!!).title(carcass.type!!.name))
+        marker.tag = ref
+        markers[marker] = carcass
+        return marker
+    }
+
+    private fun removeMarker(key: String) {
+        val marker = markers.keys.stream()
+            .filter { m -> key == m.tag }
+            .findFirst()
+            .orElse(null)
+        Log.i(TAG, marker.toString())
+        markers.remove(marker)
+        marker.remove()
+    }
+
+    fun insertDemoData(userPos: LatLng) {
         Log.i(TAG, "insertDemoData")
         val rand = Random()
         val scale = 1 / 80.0
@@ -79,37 +78,95 @@ class FireDBHelper {
                     userPos.latitude + addLat,
                     userPos.longitude + addLng
                 )
-                val type = animalTypes.elementAt(j - 1)
-                val c = Carcass("-abc$i", type, "a dead ${type.name}", Date(), loc)
-
-                c.id = pushCarcass(c)
-                addMarker(loc, c, mMap)
+                val type = animalTypes.values.elementAt(j - 1)
+                val c = Carcass(type, "a dead ${type.name}", Date(), loc)
+                val ref = pushCarcass(c)
             }
         }
     }
 
-    private fun pushCarcass(carcass: Carcass): String? {
-        val ref = mDBCarcassRef.push()
-        ref.setValue(carcass.toCarcassDB())
-        return ref.key
+    inner class AnimalTypeListener : ChildEventListener {
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.w("Failed to read value.", error.toException())
+        }
+
+        override fun onChildMoved(snapshot: DataSnapshot, prevChild: String?) {
+            Log.d(TAG, "onChildMoved: $snapshot, $prevChild")
+        }
+
+        override fun onChildChanged(snapshot: DataSnapshot, prevChild: String?) {
+            Log.d(TAG, "onChildChanged: $snapshot, $prevChild")
+            if (animalTypes.containsKey(snapshot.key)) {
+                Log.i(TAG, "update entry")
+                val c = snapshot.getValue(AnimalType::class.java)!!
+                animalTypes[snapshot.key!!]!!.name = c.name
+            }
+        }
+
+        override fun onChildAdded(snapshot: DataSnapshot, prevChild: String?) {
+            Log.d(TAG, "onChildAdded: $snapshot, $prevChild")
+            if (!animalTypes.containsKey(snapshot.key)) {
+                Log.i(TAG, "add new entry")
+                val c = snapshot.getValue(AnimalType::class.java)!!
+                animalTypes[snapshot.key!!] = c
+            }
+        }
+
+        override fun onChildRemoved(snapshot: DataSnapshot) {
+            Log.d(TAG, "onChildRemoved: $snapshot")
+            if (animalTypes.containsKey(snapshot.key)) {
+                Log.i(TAG, "remove entry")
+                animalTypes.remove(snapshot.key)
+            }
+        }
     }
 
-    fun addMarker(
-        latLng: LatLng,
-        carcass: Carcass,
-        mMap: GoogleMap
-    ): Marker {
-        val marker = mMap.addMarker(MarkerOptions().position(latLng).title(carcass.type!!.name));
-        markers[marker] = carcass
-        return marker
-    }
+    inner class CarcassListener : ChildEventListener {
 
+        override fun onCancelled(error: DatabaseError) {
+            Log.w("Failed to read value.", error.toException())
+        }
+
+        override fun onChildMoved(snapshot: DataSnapshot, prevChild: String?) {
+            Log.d(TAG, "onChildMoved: $snapshot, $prevChild")
+        }
+
+        override fun onChildChanged(snapshot: DataSnapshot, prevChild: String?) {
+            Log.d(TAG, "onChildChanged: $snapshot, $prevChild")
+            if (carcasses.containsKey(snapshot.key)) {
+                Log.i(TAG, "update entry")
+                val c = snapshot.getValue(CarcassDB::class.java)!!.toCarcass()
+                carcasses[snapshot.key!!]!!.updateValues(c)
+            }
+        }
+
+        override fun onChildAdded(snapshot: DataSnapshot, prevChild: String?) {
+            Log.d(TAG, "onChildAdded: $snapshot, $prevChild")
+            if (!carcasses.containsKey(snapshot.key)) {
+                Log.i(TAG, "add new entry")
+                val c = snapshot.getValue(CarcassDB::class.java)!!.toCarcass()
+                carcasses[snapshot.key!!] = c
+                addMarker(snapshot.key!!, c)
+            }
+        }
+
+        override fun onChildRemoved(snapshot: DataSnapshot) {
+            Log.d(TAG, "onChildRemoved: $snapshot")
+            if (carcasses.containsKey(snapshot.key)) {
+                Log.i(TAG, "remove entry")
+                val c = snapshot.getValue(CarcassDB::class.java)!!.toCarcass()
+                carcasses.remove(snapshot.key)
+                removeMarker(snapshot.key!!)
+            }
+        }
+    }
 
     companion object {
         private const val TAG = "FireDBHelper"
         var carcasses: HashMap<String, Carcass> = HashMap()
         var markers: HashMap<Marker, Carcass> = HashMap()
-        var animalTypes: Set<AnimalType> = HashSet()
+        var animalTypes: HashMap<String, AnimalType> = HashMap()
     }
 
 }

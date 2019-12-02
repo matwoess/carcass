@@ -1,8 +1,8 @@
 package com.mathias.android.carcass.model
 
 
-class AnimalType (
-    val name: String
+class AnimalType(
+    var name: String
 ) {
     constructor() : this("")
 

@@ -57,7 +57,7 @@ class AddActivity : AppCompatActivity() {
         animalTypes.values.forEach { t -> adapter.add(t.name) }
         adapter.add("Other...")
         spnType.adapter = adapter
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm");
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm");
         txtTime.text = dateFormat.format(Date())
         Log.i(TAG, geocoder.toString())
         val addresses: List<Address> = geocoder.getFromLocation(

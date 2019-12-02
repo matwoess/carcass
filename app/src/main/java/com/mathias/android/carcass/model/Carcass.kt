@@ -1,40 +1,35 @@
 package com.mathias.android.carcass.model
 
 import com.google.android.gms.maps.model.LatLng
-import java.text.SimpleDateFormat
-import java.util.*
 
 class Carcass {
     var type: AnimalType? = null
     var description: String? = null
-    var reportedAt: Date? = null
-    var location: LatLng? = null
+    var reportedAt: Long? = null
+    var location: LatLngDB = LatLngDB()
 
     constructor()
     constructor(
         type: AnimalType?,
         description: String?,
-        reportedAt: Date?,
+        reportedAt: Long?,
         location: LatLng
     ) {
         this.type = type
         this.description = description
         this.reportedAt = reportedAt
-        this.location = location
+        this.location = LatLngDB(location.latitude, location.longitude)
     }
 
-    fun toCarcassDB(): CarcassDB {
-        var type =
-            AnimalType(this.type.toString())
-        return CarcassDB(
-            type.toString(),
-            this.description!!,
-            SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(this.reportedAt!!),
-            LocationDB(
-                this.location!!.latitude.toString(),
-                this.location!!.longitude.toString()
-            )
-        )
+    fun getLatLng() : LatLng {
+        return LatLng(location.lat, location.lng)
+    }
+
+    fun updateValues(c: Carcass) {
+        this.type = c.type
+        this.location = c.location
+        this.description = c.description
+        this.reportedAt =  c.reportedAt
     }
 
     override fun toString(): String {
@@ -49,13 +44,6 @@ class Carcass {
             .append(location)
             .append("]")
             .toString()
-    }
-
-    fun updateValues(c: Carcass) {
-        this.type = c.type
-        this.location = c.location
-        this.description = c.description
-        this.reportedAt =  c.reportedAt
     }
 
     override fun equals(other: Any?): Boolean {
@@ -76,7 +64,7 @@ class Carcass {
         var result = type?.hashCode() ?: 0
         result = 31 * result + (description?.hashCode() ?: 0)
         result = 31 * result + (reportedAt?.hashCode() ?: 0)
-        result = 31 * result + (location?.hashCode() ?: 0)
+        result = 31 * result + location.hashCode()
         return result
     }
 }

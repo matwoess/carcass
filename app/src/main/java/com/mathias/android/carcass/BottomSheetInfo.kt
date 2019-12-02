@@ -58,12 +58,12 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         btnEdit = view.findViewById(R.id.btn_edit)
         txtType.text = carcass.type?.name
         txtDescription.text = carcass.description
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm");
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm");
         txtReported.text = dateFormat.format(carcass.reportedAt!!)
         Log.i(TAG, geocoder.toString())
         val addresses: List<Address> = geocoder.getFromLocation(
-            carcass.location!!.latitude,
-            carcass.location!!.longitude,
+            carcass.location.lat,
+            carcass.location.lng,
             1
         )
         txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"

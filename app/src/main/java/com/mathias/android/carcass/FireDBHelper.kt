@@ -8,7 +8,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.database.*
 import com.mathias.android.carcass.model.AnimalType
 import com.mathias.android.carcass.model.Carcass
-import com.mathias.android.carcass.model.CarcassDB
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -31,7 +30,7 @@ class FireDBHelper {
 
     private fun pushCarcass(carcass: Carcass): String {
         val ref = mDBCarcassRef.push()
-        ref.setValue(carcass.toCarcassDB())
+        ref.setValue(carcass)
         return ref.key!!
     }
 
@@ -48,7 +47,7 @@ class FireDBHelper {
         carcass: Carcass
     ): Marker {
         val marker =
-            mMap.addMarker(MarkerOptions().position(carcass.location!!).title(carcass.type!!.name))
+            mMap.addMarker(MarkerOptions().position(carcass.getLatLng()).title(carcass.type!!.name))
         marker.tag = ref
         markers[marker] = carcass
         return marker
@@ -79,7 +78,7 @@ class FireDBHelper {
                     userPos.longitude + addLng
                 )
                 val type = animalTypes.values.elementAt(j - 1)
-                val c = Carcass(type, "a dead ${type.name}", Date(), loc)
+                val c = Carcass(type, "a dead ${type.name}", Date().time, loc)
                 val ref = pushCarcass(c)
             }
         }
@@ -136,7 +135,7 @@ class FireDBHelper {
             Log.d(TAG, "onChildChanged: $snapshot, $prevChild")
             if (carcasses.containsKey(snapshot.key)) {
                 Log.i(TAG, "update entry")
-                val c = snapshot.getValue(CarcassDB::class.java)!!.toCarcass()
+                val c = snapshot.getValue(Carcass::class.java)!!
                 carcasses[snapshot.key!!]!!.updateValues(c)
             }
         }
@@ -145,7 +144,7 @@ class FireDBHelper {
             Log.d(TAG, "onChildAdded: $snapshot, $prevChild")
             if (!carcasses.containsKey(snapshot.key)) {
                 Log.i(TAG, "add new entry")
-                val c = snapshot.getValue(CarcassDB::class.java)!!.toCarcass()
+                val c = snapshot.getValue(Carcass::class.java)!!
                 carcasses[snapshot.key!!] = c
                 addMarker(snapshot.key!!, c)
             }
@@ -155,7 +154,7 @@ class FireDBHelper {
             Log.d(TAG, "onChildRemoved: $snapshot")
             if (carcasses.containsKey(snapshot.key)) {
                 Log.i(TAG, "remove entry")
-                val c = snapshot.getValue(CarcassDB::class.java)!!.toCarcass()
+                val c = snapshot.getValue(Carcass::class.java)!!
                 carcasses.remove(snapshot.key)
                 removeMarker(snapshot.key!!)
             }

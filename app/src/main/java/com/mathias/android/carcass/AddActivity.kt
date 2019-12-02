@@ -172,6 +172,11 @@ class AddActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
     companion object {
         private const val TAG = "AddActivity"
         private const val REQUEST_TAKE_PHOTO = 220

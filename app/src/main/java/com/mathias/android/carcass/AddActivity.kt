@@ -14,6 +14,8 @@ import androidx.core.content.FileProvider
 import com.google.android.gms.maps.model.LatLng
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
+import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
+import com.mathias.android.carcass.model.AnimalType
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -31,18 +33,32 @@ class AddActivity : AppCompatActivity() {
 
     private lateinit var location: LatLng
     private var reportedAt: Long = 0L
+    private var description: String? = null
+    private var animalType: AnimalType? = null
+    private var existingKey: String? = null
 
     private var currentPhotoPath: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add)
-        val lat = intent.getDoubleExtra("location_lat", .0)
-        val lng = intent.getDoubleExtra("location_lng", .0)
-        Log.i(TAG, lat.toString())
-        Log.i(TAG, lng.toString())
-        location = LatLng(lat, lng)
-        reportedAt = Date().time
+        existingKey = intent.getStringExtra(EXISTING_KEY)
+        if (existingKey == null) {
+            Log.i(TAG, "new entry")
+            val lat = intent.getDoubleExtra(CARCASS_LOCATION_LAT, .0)
+            val lng = intent.getDoubleExtra(CARCASS_LOCATION_LNG, .0)
+            Log.i(TAG, lat.toString())
+            Log.i(TAG, lng.toString())
+            location = LatLng(lat, lng)
+            reportedAt = Date().time
+        } else {
+            Log.i(TAG, "edit entry")
+            val c = carcasses[existingKey!!]!!
+            this.description = c.description
+            this.reportedAt = c.reportedAt!!
+            this.animalType = c.type
+            this.location = c.getLatLng()
+        }
         initUI()
         initButtons()
     }
@@ -59,6 +75,10 @@ class AddActivity : AppCompatActivity() {
         animalTypes.values.forEach { t -> adapter.add(t.name) }
         adapter.add("Other...")
         spnType.adapter = adapter
+        if (animalType != null) {
+            val idx = adapter.getPosition(animalType?.name)
+            spnType.setSelection(idx)
+        }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm");
         txtTime.text = dateFormat.format(reportedAt)
         Log.i(TAG, geocoder.toString())
@@ -68,6 +88,7 @@ class AddActivity : AppCompatActivity() {
             1
         )
         txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
+        txtDescription.text = description
         imageView = findViewById(R.id.img_view_report)
     }
 
@@ -82,12 +103,14 @@ class AddActivity : AppCompatActivity() {
         val description = txtDescription.text.toString()
         val returnIntent = Intent()
         val bundle = Bundle()
-        bundle.putString(NEW_CARCASS_TYPE, type)
-        bundle.putString(NEW_CARCASS_DESCRIPTION, description)
-        bundle.putLong(NEW_CARCASS_TIME, reportedAt)
-        bundle.putDouble(NEW_CARCASS_LOCATION_LAT, location.latitude)
-        bundle.putDouble(NEW_CARCASS_LOCATION_LNG, location.longitude)
-        returnIntent.putExtra(NEW_CARCASS_BUNDLE, bundle)
+        bundle.putString(CARCASS_TYPE, type)
+        bundle.putString(CARCASS_DESCRIPTION, description)
+        bundle.putLong(CARCASS_TIME, reportedAt)
+        bundle.putDouble(CARCASS_LOCATION_LAT, location.latitude)
+        bundle.putDouble(CARCASS_LOCATION_LNG, location.longitude)
+        Log.i(TAG, "putting string extra $existingKey")
+        bundle.putString(EXISTING_KEY, existingKey)
+        returnIntent.putExtra(CARCASS_BUNDLE, bundle)
         setResult(RESULT_OK, returnIntent)
         finish()
     }
@@ -143,7 +166,6 @@ class AddActivity : AppCompatActivity() {
             val scaleFactor: Int = min(photoW / targetW, photoH / targetH)
             inJustDecodeBounds = false
             inSampleSize = scaleFactor
-            inPurgeable = true
         }
         BitmapFactory.decodeFile(currentPhotoPath, bmOptions)?.also { bitmap ->
             imageView.setImageBitmap(bitmap)
@@ -153,11 +175,12 @@ class AddActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "AddActivity"
         private const val REQUEST_TAKE_PHOTO = 220
-        const val NEW_CARCASS_BUNDLE = "BUNDLE"
-        const val NEW_CARCASS_TYPE = "TYPE"
-        const val NEW_CARCASS_DESCRIPTION = "DESCRIPTION"
-        const val NEW_CARCASS_TIME = "TIME"
-        const val NEW_CARCASS_LOCATION_LAT = "LOCATION_LAT"
-        const val NEW_CARCASS_LOCATION_LNG = "LOCATION_LNG"
+        const val EXISTING_KEY = "KEY"
+        const val CARCASS_BUNDLE = "BUNDLE"
+        const val CARCASS_TYPE = "TYPE"
+        const val CARCASS_DESCRIPTION = "DESCRIPTION"
+        const val CARCASS_TIME = "TIME"
+        const val CARCASS_LOCATION_LAT = "LOCATION_LAT"
+        const val CARCASS_LOCATION_LNG = "LOCATION_LNG"
     }
 }

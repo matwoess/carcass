@@ -1,7 +1,7 @@
 # carcass
 An app to report carcasses.
 ### current TODOs:
- - edit entries
+ - singleton animal types
  - report-button
  - store/load pictures in Firebase
  - add/remove listeners in onPause/onResume

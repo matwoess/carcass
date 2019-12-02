@@ -34,6 +34,12 @@ class FireDBHelper {
         return ref.key!!
     }
 
+    fun updateCarcass(key: String, carcass: Carcass): String {
+        val ref = mDBCarcassRef.child(key)
+        ref.setValue(carcass)
+        return ref.key!!
+    }
+
     fun removeCarcass(carcass: Carcass): Boolean {
         val entry = carcasses.entries.stream()
             .filter { e -> e.value == carcass }
@@ -49,7 +55,7 @@ class FireDBHelper {
         val marker =
             mMap.addMarker(MarkerOptions().position(carcass.getLatLng()).title(carcass.type!!.name))
         marker.tag = ref
-        markers[marker] = carcass
+        markers[marker] = ref
         return marker
     }
 
@@ -164,7 +170,7 @@ class FireDBHelper {
     companion object {
         private const val TAG = "FireDBHelper"
         var carcasses: HashMap<String, Carcass> = HashMap()
-        var markers: HashMap<Marker, Carcass> = HashMap()
+        var markers: HashMap<Marker, String> = HashMap()
         var animalTypes: HashMap<String, AnimalType> = HashMap()
     }
 

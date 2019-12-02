@@ -1,6 +1,7 @@
 package com.mathias.android.carcass
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
@@ -21,12 +22,13 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_BUNDLE
-import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_DESCRIPTION
-import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_LOCATION_LAT
-import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_LOCATION_LNG
-import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_TIME
-import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_TYPE
+import com.mathias.android.carcass.AddActivity.Companion.CARCASS_BUNDLE
+import com.mathias.android.carcass.AddActivity.Companion.CARCASS_DESCRIPTION
+import com.mathias.android.carcass.AddActivity.Companion.CARCASS_LOCATION_LAT
+import com.mathias.android.carcass.AddActivity.Companion.CARCASS_LOCATION_LNG
+import com.mathias.android.carcass.AddActivity.Companion.CARCASS_TIME
+import com.mathias.android.carcass.AddActivity.Companion.CARCASS_TYPE
+import com.mathias.android.carcass.AddActivity.Companion.EXISTING_KEY
 import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
 import com.mathias.android.carcass.FireDBHelper.Companion.markers
 import com.mathias.android.carcass.model.AnimalType
@@ -88,8 +90,8 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
 
     private fun handleFabClick() {
         val intent = Intent(this, AddActivity::class.java).apply {
-            putExtra("location_lat", lastLocation?.latitude)
-            putExtra("location_lng", lastLocation?.longitude)
+            putExtra(CARCASS_LOCATION_LAT, lastLocation?.latitude)
+            putExtra(CARCASS_LOCATION_LNG, lastLocation?.longitude)
         }
         startActivityForResult(intent, ADD_REQUEST_CODE)
     }
@@ -123,8 +125,8 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         return true
     }
 
-    private fun showBottomSheet(carcass: Carcass) {
-        val sheet = BottomSheetInfo().newInstance(carcass)
+    private fun showBottomSheet(key: String) {
+        val sheet = BottomSheetInfo().newInstance(key)
         sheet.show(this.supportFragmentManager, "Carcass Info")
     }
 
@@ -150,17 +152,31 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         if (requestCode == ADD_REQUEST_CODE && resultCode == RESULT_OK) {
             Log.i(TAG, "result is OK")
             if (data == null) return
-            val bundle = data.getBundleExtra(NEW_CARCASS_BUNDLE) ?: return
+            val bundle = data.getBundleExtra(CARCASS_BUNDLE) ?: return
             Log.i(TAG, "get carcass data")
-            val type = bundle.getString(NEW_CARCASS_TYPE)
-            val description = bundle.getString(NEW_CARCASS_DESCRIPTION)
-            val time = bundle.getLong(NEW_CARCASS_TIME)
-            val lat = bundle.getDouble(NEW_CARCASS_LOCATION_LAT)
-            val lng = bundle.getDouble(NEW_CARCASS_LOCATION_LNG)
-            Log.i(TAG, "create new entry")
-            val carcass = Carcass(AnimalType(type!!), description, time, LatLng(lat, lng))
-            fireDBHandler.pushCarcass(carcass)
+            val new = getCarcassFromBundle(bundle)
+            Log.i(TAG, "create new entry in DB")
+            fireDBHandler.pushCarcass(new)
+        } else if (requestCode == EDIT_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Log.i(TAG, "result is OK")
+            if (data == null) return
+            val bundle = data.getBundleExtra(CARCASS_BUNDLE) ?: return
+            Log.i(TAG, "get carcass data")
+            val updated = getCarcassFromBundle(bundle)
+            Log.i(TAG, "update existing entry in DB")
+            val key = bundle.getString(EXISTING_KEY)
+            Log.i(TAG, "key = $key")
+            fireDBHandler.updateCarcass(key!!, updated)
         }
+    }
+
+    private fun getCarcassFromBundle(bundle: Bundle): Carcass {
+        val type = bundle.getString(CARCASS_TYPE)
+        val description = bundle.getString(CARCASS_DESCRIPTION)
+        val time = bundle.getLong(CARCASS_TIME)
+        val lat = bundle.getDouble(CARCASS_LOCATION_LAT)
+        val lng = bundle.getDouble(CARCASS_LOCATION_LNG)
+        return Carcass(AnimalType(type!!), description, time, LatLng(lat, lng))
     }
 
     override fun onResume() {
@@ -188,11 +204,13 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     }
 
     companion object {
-        lateinit var geocoder: Geocoder
         private const val TAG = "ActivityMaps";
+
+        lateinit var geocoder: Geocoder
+        lateinit var fireDBHandler: FireDBHelper
+
         private const val REQUEST_PERM_LOCATION = 100
         private const val ADD_REQUEST_CODE = 200
-
-        lateinit var fireDBHandler: FireDBHelper
+        const val EDIT_REQUEST_CODE = 210
     }
 }

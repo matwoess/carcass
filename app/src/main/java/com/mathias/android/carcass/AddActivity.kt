@@ -30,6 +30,7 @@ class AddActivity : AppCompatActivity() {
     private lateinit var imageView: ImageView
 
     private lateinit var location: LatLng
+    private var reportedAt: Long = 0L
 
     private var currentPhotoPath: String = ""
 
@@ -41,6 +42,7 @@ class AddActivity : AppCompatActivity() {
         Log.i(TAG, lat.toString())
         Log.i(TAG, lng.toString())
         location = LatLng(lat, lng)
+        reportedAt = Date().time
         initUI()
         initButtons()
     }
@@ -58,7 +60,7 @@ class AddActivity : AppCompatActivity() {
         adapter.add("Other...")
         spnType.adapter = adapter
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm");
-        txtTime.text = dateFormat.format(Date())
+        txtTime.text = dateFormat.format(reportedAt)
         Log.i(TAG, geocoder.toString())
         val addresses: List<Address> = geocoder.getFromLocation(
             location.latitude,
@@ -72,7 +74,22 @@ class AddActivity : AppCompatActivity() {
 
     private fun initButtons() {
         btnTakePicture.setOnClickListener { dispatchTakePictureIntent() }
-        btnDone.setOnClickListener { finish() }
+        btnDone.setOnClickListener { finishAndReturn() }
+    }
+
+    private fun finishAndReturn() {
+        val type = spnType.selectedItem.toString()
+        val description = txtDescription.text.toString()
+        val returnIntent = Intent()
+        val bundle = Bundle()
+        bundle.putString(NEW_CARCASS_TYPE, type)
+        bundle.putString(NEW_CARCASS_DESCRIPTION, description)
+        bundle.putLong(NEW_CARCASS_TIME, reportedAt)
+        bundle.putDouble(NEW_CARCASS_LOCATION_LAT, location.latitude)
+        bundle.putDouble(NEW_CARCASS_LOCATION_LNG, location.longitude)
+        returnIntent.putExtra(NEW_CARCASS_BUNDLE, bundle)
+        setResult(RESULT_OK, returnIntent)
+        finish()
     }
 
     private fun dispatchTakePictureIntent() {
@@ -136,5 +153,11 @@ class AddActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "AddActivity"
         private const val REQUEST_TAKE_PHOTO = 220
+        const val NEW_CARCASS_BUNDLE = "BUNDLE"
+        const val NEW_CARCASS_TYPE = "TYPE"
+        const val NEW_CARCASS_DESCRIPTION = "DESCRIPTION"
+        const val NEW_CARCASS_TIME = "TIME"
+        const val NEW_CARCASS_LOCATION_LAT = "LOCATION_LAT"
+        const val NEW_CARCASS_LOCATION_LNG = "LOCATION_LNG"
     }
 }

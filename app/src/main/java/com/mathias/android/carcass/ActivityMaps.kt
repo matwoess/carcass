@@ -21,8 +21,15 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_BUNDLE
+import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_DESCRIPTION
+import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_LOCATION_LAT
+import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_LOCATION_LNG
+import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_TIME
+import com.mathias.android.carcass.AddActivity.Companion.NEW_CARCASS_TYPE
 import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
 import com.mathias.android.carcass.FireDBHelper.Companion.markers
+import com.mathias.android.carcass.model.AnimalType
 import com.mathias.android.carcass.model.Carcass
 import java.util.*
 
@@ -134,6 +141,25 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.i(TAG, "onActivityResult")
+        if (requestCode == ADD_REQUEST_CODE && resultCode == RESULT_OK) {
+            Log.i(TAG, "result is OK")
+            if (data == null) return
+            val bundle = data.getBundleExtra(NEW_CARCASS_BUNDLE) ?: return
+            Log.i(TAG, "get carcass data")
+            val type = bundle.getString(NEW_CARCASS_TYPE)
+            val description = bundle.getString(NEW_CARCASS_DESCRIPTION)
+            val time = bundle.getLong(NEW_CARCASS_TIME)
+            val lat = bundle.getDouble(NEW_CARCASS_LOCATION_LAT)
+            val lng = bundle.getDouble(NEW_CARCASS_LOCATION_LNG)
+            Log.i(TAG, "create new entry")
+            val carcass = Carcass(AnimalType(type!!), description, time, LatLng(lat, lng))
+            fireDBHandler.pushCarcass(carcass)
         }
     }
 

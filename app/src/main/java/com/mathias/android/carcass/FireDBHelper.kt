@@ -28,7 +28,7 @@ class FireDBHelper {
         mDBCarcassRef.addChildEventListener(CarcassListener())
     }
 
-    private fun pushCarcass(carcass: Carcass): String {
+    fun pushCarcass(carcass: Carcass): String {
         val ref = mDBCarcassRef.push()
         ref.setValue(carcass)
         return ref.key!!

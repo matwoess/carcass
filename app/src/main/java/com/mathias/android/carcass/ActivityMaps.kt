@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -14,6 +15,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.net.toUri
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -24,6 +26,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mathias.android.carcass.AddActivity.Companion.CARCASS_BUNDLE
 import com.mathias.android.carcass.AddActivity.Companion.CARCASS_DESCRIPTION
+import com.mathias.android.carcass.AddActivity.Companion.CARCASS_IMAGE_PATH
 import com.mathias.android.carcass.AddActivity.Companion.CARCASS_LOCATION_LAT
 import com.mathias.android.carcass.AddActivity.Companion.CARCASS_LOCATION_LNG
 import com.mathias.android.carcass.AddActivity.Companion.CARCASS_TIME
@@ -33,6 +36,7 @@ import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
 import com.mathias.android.carcass.FireDBHelper.Companion.markers
 import com.mathias.android.carcass.model.AnimalType
 import com.mathias.android.carcass.model.Carcass
+import java.io.File
 import java.util.*
 
 class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
@@ -67,8 +71,8 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         Log.i(TAG, "map ready")
         mMap = googleMap
-        fireDBHandler = FireDBHelper(mMap)
-        fireDBHandler.initFirebaseDB()
+        fireDBHelper = FireDBHelper(mMap)
+        fireDBHelper.initFirebaseDB()
         mMap.uiSettings.isZoomControlsEnabled = true
         initLocation()
         mMap.setOnMarkerClickListener { latLng -> handleMarkerClick(mMap, latLng) }
@@ -139,7 +143,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.demo_data -> {
-                if (animalTypes.isNotEmpty()) fireDBHandler.insertDemoData(lastLocation!!)
+                if (animalTypes.isNotEmpty()) fireDBHelper.insertDemoData(lastLocation!!)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -155,8 +159,13 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
             val bundle = data.getBundleExtra(CARCASS_BUNDLE) ?: return
             Log.i(TAG, "get carcass data")
             val new = getCarcassFromBundle(bundle)
+            val img = bundle.getString(CARCASS_IMAGE_PATH)
+            var uri : Uri? = null
+            if (img != null && img.isNotEmpty()) {
+                uri = File(img).toUri()
+            }
             Log.i(TAG, "create new entry in DB")
-            fireDBHandler.pushCarcass(new)
+            fireDBHelper.pushCarcass(new, uri)
         } else if (requestCode == EDIT_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Log.i(TAG, "result is OK")
             if (data == null) return
@@ -166,7 +175,14 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
             Log.i(TAG, "update existing entry in DB")
             val key = bundle.getString(EXISTING_KEY)
             Log.i(TAG, "key = $key")
-            fireDBHandler.updateCarcass(key!!, updated)
+            fireDBHelper.updateCarcass(key!!, updated)
+            val img = bundle.getString(CARCASS_IMAGE_PATH)
+            if (img != null && img.isNotEmpty()) {
+                Log.i(TAG, "update image")
+                fireDBHelper.deleteImage(key)
+                val uri = File(img).toUri()
+                fireDBHelper.storeImage(key, uri)
+            }
         }
     }
 
@@ -207,7 +223,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         private const val TAG = "ActivityMaps";
 
         lateinit var geocoder: Geocoder
-        lateinit var fireDBHandler: FireDBHelper
+        lateinit var fireDBHelper: FireDBHelper
 
         private const val REQUEST_PERM_LOCATION = 100
         private const val ADD_REQUEST_CODE = 200

@@ -13,7 +13,7 @@ import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mathias.android.carcass.ActivityMaps.Companion.EDIT_REQUEST_CODE
-import com.mathias.android.carcass.ActivityMaps.Companion.fireDBHandler
+import com.mathias.android.carcass.ActivityMaps.Companion.fireDBHelper
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import com.mathias.android.carcass.AddActivity.Companion.EXISTING_KEY
 import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
@@ -92,7 +92,7 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
     }
 
     private fun deleteCarcass() {
-        fireDBHandler.removeCarcass(carcass)
+        fireDBHelper.removeCarcass(carcass)
         this.dismiss()
     }
 

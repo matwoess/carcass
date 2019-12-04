@@ -108,6 +108,7 @@ class AddActivity : AppCompatActivity() {
         bundle.putLong(CARCASS_TIME, reportedAt)
         bundle.putDouble(CARCASS_LOCATION_LAT, location.latitude)
         bundle.putDouble(CARCASS_LOCATION_LNG, location.longitude)
+        bundle.putString(CARCASS_IMAGE_PATH, currentPhotoPath)
         Log.i(TAG, "putting string extra $existingKey")
         bundle.putString(EXISTING_KEY, existingKey)
         returnIntent.putExtra(CARCASS_BUNDLE, bundle)
@@ -187,5 +188,6 @@ class AddActivity : AppCompatActivity() {
         const val CARCASS_TIME = "TIME"
         const val CARCASS_LOCATION_LAT = "LOCATION_LAT"
         const val CARCASS_LOCATION_LNG = "LOCATION_LNG"
+        const val CARCASS_IMAGE_PATH = "IMAGE_PATH"
     }
 }

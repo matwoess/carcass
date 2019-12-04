@@ -1,12 +1,13 @@
 # carcass
 An app to report carcasses.
 ### current TODOs
+ - load pictures from Firebase
+ - Glide integration
  - singleton animal types
+ - insert new animal types with "Other.."
  - report-button
- - store/load pictures in Firebase
  - add/remove listeners in onPause/onResume
- - increase geocoder speed (pre-compute with async task?)
  - replace SimpleDateFormat occurrences
  - improve automatic location updates
- - insert new animal types with "Other.."
+ - increase geocoder speed (pre-compute with async task?)
  - ...

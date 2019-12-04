@@ -1,11 +1,14 @@
 package com.mathias.android.carcass
 
+import android.net.Uri
 import android.util.Log
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.mathias.android.carcass.model.AnimalType
 import com.mathias.android.carcass.model.Carcass
 import java.util.*
@@ -14,6 +17,8 @@ import kotlin.collections.HashMap
 class FireDBHelper {
     private lateinit var mDBCarcassRef: DatabaseReference
     private lateinit var mDBAnimalTypeRef: DatabaseReference
+    private lateinit var mDBStorage: FirebaseStorage
+    private lateinit var mDBStorageRef: StorageReference
     private val mMap: GoogleMap
 
     constructor(map: GoogleMap) {
@@ -24,14 +29,30 @@ class FireDBHelper {
         Log.i(TAG, "initialize Firebase DB")
         mDBAnimalTypeRef = FirebaseDatabase.getInstance().reference.child("animalTypes")
         mDBCarcassRef = FirebaseDatabase.getInstance().reference.child("carcasses")
+        mDBStorage = FirebaseStorage.getInstance()
+        mDBStorageRef = mDBStorage.reference.child("images")
         mDBAnimalTypeRef.addChildEventListener(AnimalTypeListener())
         mDBCarcassRef.addChildEventListener(CarcassListener())
     }
 
-    fun pushCarcass(carcass: Carcass): String {
+    fun pushCarcass(carcass: Carcass, uri: Uri?): String {
         val ref = mDBCarcassRef.push()
         ref.setValue(carcass)
-        return ref.key!!
+        val key = ref.key!!
+        if (uri != null) storeImage(key, uri)
+        return key
+    }
+
+    fun storeImage(key: String, image: Uri) {
+        Log.i(TAG, "carcass has image, uploading to storage")
+        mDBStorageRef.child(key).child(image.lastPathSegment!!).putFile(image)
+            .addOnSuccessListener { t ->
+                t.task.result.metadata!!.reference!!.downloadUrl
+                    .addOnSuccessListener { r ->
+                        carcasses[key]!!.url = r.toString()
+                        updateCarcass(key, carcasses[key]!!)
+                    }
+            }
     }
 
     fun updateCarcass(key: String, carcass: Carcass): String {
@@ -45,7 +66,18 @@ class FireDBHelper {
             .filter { e -> e.value == carcass }
             .findFirst()
             .orElse(null)
+            ?: return false
+        if (carcass.url != null) deleteImage(entry.key)
         return mDBCarcassRef.child(entry.key).removeValue().isSuccessful
+    }
+
+    fun deleteImage(key: String): Boolean {
+        Log.d(TAG, "delete image at images/$key")
+        val c = carcasses[key]!!
+        if (c.url == null) return false
+        val imgRef = mDBStorage.getReferenceFromUrl(c.url!!)
+        Log.d(TAG, "imgRef: $imgRef")
+        return imgRef.delete().isSuccessful
     }
 
     fun addMarker(
@@ -85,7 +117,7 @@ class FireDBHelper {
                 )
                 val type = animalTypes.values.elementAt(j - 1)
                 val c = Carcass(type, "a dead ${type.name}", Date().time, loc)
-                val ref = pushCarcass(c)
+                val ref = pushCarcass(c, null) // TODO
             }
         }
     }

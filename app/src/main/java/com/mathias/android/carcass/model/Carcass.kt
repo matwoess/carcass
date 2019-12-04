@@ -1,5 +1,6 @@
 package com.mathias.android.carcass.model
 
+import android.net.Uri
 import com.google.android.gms.maps.model.LatLng
 
 class Carcass {
@@ -7,6 +8,7 @@ class Carcass {
     var description: String? = null
     var reportedAt: Long? = null
     var location: LatLngDB = LatLngDB()
+    var url: String? = null
 
     constructor()
     constructor(
@@ -21,7 +23,18 @@ class Carcass {
         this.location = LatLngDB(location.latitude, location.longitude)
     }
 
-    fun getLatLng() : LatLng {
+    constructor(
+        type: AnimalType?,
+        description: String?,
+        reportedAt: Long?,
+        location: LatLng,
+        image: String?
+    ) : this(type, description, reportedAt, location) {
+        this.url = image
+    }
+
+
+    fun getLatLng(): LatLng {
         return LatLng(location.lat, location.lng)
     }
 
@@ -29,7 +42,7 @@ class Carcass {
         this.type = c.type
         this.location = c.location
         this.description = c.description
-        this.reportedAt =  c.reportedAt
+        this.reportedAt = c.reportedAt
     }
 
     override fun toString(): String {

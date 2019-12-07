@@ -1,6 +1,7 @@
 package com.mathias.android.carcass
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -24,14 +25,14 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.mathias.android.carcass.AddActivity.Companion.CARCASS_BUNDLE
-import com.mathias.android.carcass.AddActivity.Companion.CARCASS_DESCRIPTION
-import com.mathias.android.carcass.AddActivity.Companion.CARCASS_IMAGE_PATH
-import com.mathias.android.carcass.AddActivity.Companion.CARCASS_LOCATION_LAT
-import com.mathias.android.carcass.AddActivity.Companion.CARCASS_LOCATION_LNG
-import com.mathias.android.carcass.AddActivity.Companion.CARCASS_TIME
-import com.mathias.android.carcass.AddActivity.Companion.CARCASS_TYPE
-import com.mathias.android.carcass.AddActivity.Companion.EXISTING_KEY
+import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_BUNDLE
+import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_DESCRIPTION
+import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_IMAGE_PATH
+import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_LOCATION_LAT
+import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_LOCATION_LNG
+import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_TIME
+import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_TYPE
+import com.mathias.android.carcass.ActivityEdit.Companion.EXISTING_KEY
 import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
 import com.mathias.android.carcass.FireDBHelper.Companion.markers
 import com.mathias.android.carcass.model.AnimalType
@@ -93,7 +94,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun handleFabClick() {
-        val intent = Intent(this, AddActivity::class.java).apply {
+        val intent = Intent(this, ActivityEdit::class.java).apply {
             putExtra(CARCASS_LOCATION_LAT, lastLocation?.latitude)
             putExtra(CARCASS_LOCATION_LNG, lastLocation?.longitude)
         }
@@ -105,6 +106,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         return true
     }
 
+    @SuppressLint("MissingPermission")
     private fun initLocation() {
         Log.i(TAG, "init location")
         if (!checkPermissions()) return
@@ -210,6 +212,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         requestingLocationUpdates = false
     }
 
+    @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
         fusedLocationClient.requestLocationUpdates(
             locationRequest,

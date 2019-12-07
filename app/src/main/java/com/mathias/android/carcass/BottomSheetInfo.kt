@@ -7,15 +7,20 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.mathias.android.carcass.ActivityMaps.Companion.EDIT_REQUEST_CODE
 import com.mathias.android.carcass.ActivityMaps.Companion.fireDBHelper
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
-import com.mathias.android.carcass.AddActivity.Companion.EXISTING_KEY
+import com.mathias.android.carcass.ActivityEdit.Companion.EXISTING_KEY
 import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
 import com.mathias.android.carcass.model.Carcass
 import java.text.SimpleDateFormat
@@ -61,9 +66,6 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         txtReported = view.findViewById(R.id.txt_reported)
         txtLocation = view.findViewById(R.id.txt_location)
         btnShowPicture = view.findViewById(R.id.btn_show_picture)
-        btnRemove = view.findViewById(R.id.btn_remove)
-        btnReport = view.findViewById(R.id.btn_report)
-        btnEdit = view.findViewById(R.id.btn_edit)
         txtType.text = carcass.type?.name
         txtDescription.text = carcass.description
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -75,16 +77,27 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
             1
         )
         txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
+        btnShowPicture.visibility = if (carcass.url != null) VISIBLE else GONE
     }
 
     private fun initButtons(view: View) {
+        btnRemove = view.findViewById(R.id.btn_remove)
+        btnEdit = view.findViewById(R.id.btn_edit)
+        btnReport = view.findViewById(R.id.btn_report)
         btnShowPicture.setOnClickListener { showPicture(view) }
         btnRemove.setOnClickListener { deleteCarcass() }
         btnEdit.setOnClickListener { editCarcass() }
+        btnReport.setOnClickListener {
+            Toast.makeText(
+                activity,
+                "TODO",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun editCarcass() {
-        val intent = Intent(activity, AddActivity::class.java).apply {
+        val intent = Intent(activity, ActivityEdit::class.java).apply {
             putExtra(EXISTING_KEY, key)
         }
         this.dismiss()
@@ -97,15 +110,19 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
     }
 
     private fun showPicture(view: View) {
-        val settingsDialog = Dialog(view.context)
-        settingsDialog.window!!.requestFeature(Window.FEATURE_NO_TITLE)
-        settingsDialog.setContentView(
+        val imageDialog = Dialog(view.context)
+        imageDialog.window!!.requestFeature(Window.FEATURE_NO_TITLE)
+        imageDialog.setContentView(
             layoutInflater.inflate(
                 R.layout.image_view
                 , null
             )
         )
-        settingsDialog.show()
+        imageDialog.show()
+        if (carcass.url != null) {
+            val imageView = imageDialog.findViewById(R.id.image_view) as ImageView
+            Glide.with(this).load(carcass.url).into(imageView)
+        }
     }
 
     companion object {

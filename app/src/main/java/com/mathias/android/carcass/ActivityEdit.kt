@@ -11,6 +11,7 @@ import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import com.google.android.gms.maps.model.LatLng
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
@@ -22,7 +23,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.min
 
-class AddActivity : AppCompatActivity() {
+class ActivityEdit : AppCompatActivity() {
     private lateinit var spnType: Spinner
     private lateinit var txtDescription: TextView
     private lateinit var txtTime: TextView
@@ -36,12 +37,13 @@ class AddActivity : AppCompatActivity() {
     private var description: String? = null
     private var animalType: AnimalType? = null
     private var existingKey: String? = null
+    private var imageUrl: String? = null
 
     private var currentPhotoPath: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add)
+        setContentView(R.layout.activity_edit)
         existingKey = intent.getStringExtra(EXISTING_KEY)
         if (existingKey == null) {
             Log.i(TAG, "new entry")
@@ -58,6 +60,7 @@ class AddActivity : AppCompatActivity() {
             this.reportedAt = c.reportedAt!!
             this.animalType = c.type
             this.location = c.getLatLng()
+            this.imageUrl = c.url
         }
         initUI()
         initButtons()
@@ -68,8 +71,6 @@ class AddActivity : AppCompatActivity() {
         txtDescription = findViewById(R.id.txt_animal_description)
         txtTime = findViewById(R.id.txt_current_time)
         txtLocation = findViewById(R.id.txt_current_location)
-        btnTakePicture = findViewById(R.id.btn_take_picture)
-        btnDone = findViewById(R.id.btn_done)
         val adapter =
             ArrayAdapter<CharSequence>(this, R.layout.support_simple_spinner_dropdown_item)
         animalTypes.values.forEach { t -> adapter.add(t.name) }
@@ -90,10 +91,16 @@ class AddActivity : AppCompatActivity() {
         txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
         txtDescription.text = description
         imageView = findViewById(R.id.img_view_report)
+        if (imageUrl != null) {
+            Glide.with(this).load(imageUrl).into(imageView)
+        }
     }
 
 
     private fun initButtons() {
+        btnTakePicture = findViewById(R.id.btn_take_picture)
+        btnDone = findViewById(R.id.btn_done)
+        btnTakePicture.text = if (imageUrl != null) "Edit picture" else "Take picture"
         btnTakePicture.setOnClickListener { dispatchTakePictureIntent() }
         btnDone.setOnClickListener { finishAndReturn() }
     }

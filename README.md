@@ -1,8 +1,6 @@
 # carcass
 An app to report carcasses.
 ### current TODOs
- - load pictures from Firebase
- - Glide integration
  - singleton animal types
  - insert new animal types with "Other.."
  - report-button

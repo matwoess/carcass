@@ -3,9 +3,8 @@ An app to report carcasses.
 ### current TODOs
  - singleton animal types
  - insert new animal types with "Other.."
- - report-button
+ - close keyboard on description field focus loss
  - add/remove listeners in onPause/onResume
  - replace SimpleDateFormat occurrences
- - improve automatic location updates
  - increase geocoder speed (pre-compute with async task?)
  - ...

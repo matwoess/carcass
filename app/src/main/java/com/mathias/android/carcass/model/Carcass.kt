@@ -9,6 +9,7 @@ class Carcass {
     var reportedAt: Long? = null
     var location: LatLngDB = LatLngDB()
     var url: String? = null
+    var flagged: Boolean = false
 
     constructor()
     constructor(
@@ -34,7 +35,7 @@ class Carcass {
     }
 
 
-    fun getLatLng(): LatLng {
+    fun latLng(): LatLng {
         return LatLng(location.lat, location.lng)
     }
 
@@ -43,6 +44,7 @@ class Carcass {
         this.location = c.location
         this.description = c.description
         this.reportedAt = c.reportedAt
+        this.flagged = c.flagged
     }
 
     override fun toString(): String {

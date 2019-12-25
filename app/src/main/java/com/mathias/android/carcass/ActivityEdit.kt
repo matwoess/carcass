@@ -59,7 +59,7 @@ class ActivityEdit : AppCompatActivity() {
             this.description = c.description
             this.reportedAt = c.reportedAt!!
             this.animalType = c.type
-            this.location = c.getLatLng()
+            this.location = c.latLng()
             this.imageUrl = c.url
         }
         initUI()

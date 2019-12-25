@@ -1,5 +1,6 @@
 package com.mathias.android.carcass
 
+import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.location.Address
@@ -14,13 +15,12 @@ import android.view.Window
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.mathias.android.carcass.ActivityEdit.Companion.EXISTING_KEY
 import com.mathias.android.carcass.ActivityMaps.Companion.EDIT_REQUEST_CODE
 import com.mathias.android.carcass.ActivityMaps.Companion.fireDBHelper
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
-import com.mathias.android.carcass.ActivityEdit.Companion.EXISTING_KEY
 import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
 import com.mathias.android.carcass.model.Carcass
 import java.text.SimpleDateFormat
@@ -77,7 +77,12 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
             1
         )
         txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
+    }
+
+    private fun updateUI() {
         btnShowPicture.visibility = if (carcass.url != null) VISIBLE else GONE
+        btnRemove.isEnabled = carcass.flagged
+        btnReport.isEnabled = !carcass.flagged
     }
 
     private fun initButtons(view: View) {
@@ -85,15 +90,25 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         btnEdit = view.findViewById(R.id.btn_edit)
         btnReport = view.findViewById(R.id.btn_report)
         btnShowPicture.setOnClickListener { showPicture(view) }
-        btnRemove.setOnClickListener { deleteCarcass() }
+        btnRemove.setOnClickListener { onDeleteCarcass() }
         btnEdit.setOnClickListener { editCarcass() }
-        btnReport.setOnClickListener {
-            Toast.makeText(
-                activity,
-                "TODO",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        btnReport.setOnClickListener { onReportCarcass() }
+        updateUI()
+    }
+
+    private fun onReportCarcass() {
+        AlertDialog.Builder(context)
+            .setTitle("Report")
+            .setMessage("Do you want to flag this carcass location as out of date or removed?")
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setPositiveButton(android.R.string.yes) { _, _ -> flagCarcass() }
+            .setNegativeButton(android.R.string.no, null).show()
+    }
+
+    private fun flagCarcass() {
+        carcass.flagged = true
+        fireDBHelper.updateCarcass(key, carcass)
+        updateUI()
     }
 
     private fun editCarcass() {
@@ -102,6 +117,15 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         }
         this.dismiss()
         activity?.startActivityForResult(intent, EDIT_REQUEST_CODE)
+    }
+
+    private fun onDeleteCarcass() {
+        AlertDialog.Builder(context)
+            .setTitle("Remove")
+            .setMessage("Do you want to permanently delete this location?")
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setPositiveButton(android.R.string.yes) { _, _ -> deleteCarcass() }
+            .setNegativeButton(android.R.string.no, null).show()
     }
 
     private fun deleteCarcass() {

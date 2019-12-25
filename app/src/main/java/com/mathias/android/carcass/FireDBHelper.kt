@@ -3,6 +3,7 @@ package com.mathias.android.carcass
 import android.net.Uri
 import android.util.Log
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -85,9 +86,12 @@ class FireDBHelper {
         carcass: Carcass
     ): Marker {
         val marker =
-            mMap.addMarker(MarkerOptions().position(carcass.getLatLng()).title(carcass.type!!.name))
+            mMap.addMarker(MarkerOptions().position(carcass.latLng()).title(carcass.type!!.name))
         marker.tag = ref
         markers[marker] = ref
+        if (carcass.flagged) {
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.yellow_dot))
+        }
         return marker
     }
 
@@ -96,7 +100,6 @@ class FireDBHelper {
             .filter { m -> key == m.tag }
             .findFirst()
             .orElse(null)
-        Log.i(TAG, marker.toString())
         markers.remove(marker)
         marker.remove()
     }
@@ -175,6 +178,7 @@ class FireDBHelper {
                 Log.i(TAG, "update entry")
                 val c = snapshot.getValue(Carcass::class.java)!!
                 carcasses[snapshot.key!!]!!.updateValues(c)
+                updateMarker(snapshot.key!!)
             }
         }
 
@@ -196,6 +200,21 @@ class FireDBHelper {
                 carcasses.remove(snapshot.key)
                 removeMarker(snapshot.key!!)
             }
+        }
+    }
+
+    private fun updateMarker(key: String) {
+        Log.i(TAG, "update marker")
+        val marker = markers.keys.stream()
+            .filter { m -> key == m.tag }
+            .findFirst()
+            .orElse(null)
+            ?: return
+        Log.i(TAG, "flagged = ${carcasses[key]!!.flagged}")
+        if (carcasses[key]!!.flagged) {
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.yellow_dot))
+        } else {
+            marker.setIcon(null) // reset to default icon
         }
     }
 

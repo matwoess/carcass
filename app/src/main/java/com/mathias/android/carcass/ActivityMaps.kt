@@ -104,10 +104,11 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun initLocation() {
         Log.i(TAG, "init location")
-        if (!checkPermissions()) return
-        requestingLocationUpdates = true
-        mMap.isMyLocationEnabled = true
-        startLocationUpdates()
+        if (checkPermissions()) {
+            requestingLocationUpdates = true
+            mMap.isMyLocationEnabled = true
+            startLocationUpdates()
+        }
     }
 
     private fun createLocationRequest(): LocationRequest {

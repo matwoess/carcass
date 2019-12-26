@@ -1,5 +1,6 @@
 package com.mathias.android.carcass
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.location.Address
@@ -9,6 +10,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -24,6 +26,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.min
+
 
 class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
     private lateinit var spnType: Spinner
@@ -84,6 +87,13 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
         )
         txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
         txtDescription.text = description
+        txtDescription.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+            if (!hasFocus) {
+                val imm: InputMethodManager =
+                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(view.applicationWindowToken, 0)
+            }
+        }
         imageView = findViewById(R.id.img_view_report)
         if (imageUrl != null) {
             Glide.with(this).load(imageUrl).into(imageView)

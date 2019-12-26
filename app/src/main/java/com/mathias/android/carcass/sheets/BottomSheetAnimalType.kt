@@ -1,6 +1,7 @@
 package com.mathias.android.carcass.sheets
 
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -24,6 +25,7 @@ class BottomSheetAnimalType : BottomSheetDialogFragment() {
     private lateinit var mBtnSave: Button
 
     private var mClickListener: IBottomSheetAnimalTypeListener? = null
+    private var mAdded: Boolean = false
 
     fun newInstance(): BottomSheetAnimalType {
         return BottomSheetAnimalType()
@@ -53,7 +55,8 @@ class BottomSheetAnimalType : BottomSheetDialogFragment() {
                 mTxtHint.visibility = if (duplicates) View.VISIBLE else View.INVISIBLE
                 mBtnSave.setOnClickListener {
                     val name = mTxtName.text.toString()
-                    mClickListener!!.onAnimalTypeSaved(name)
+                    mClickListener?.onAnimalTypeSaved(name)
+                    mAdded = true
                     dismiss()
                 }
             }
@@ -72,6 +75,10 @@ class BottomSheetAnimalType : BottomSheetDialogFragment() {
         } catch (e: ClassCastException) {
             throw ClassCastException("$context must implement BottomSheetListener")
         }
+    }
 
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        mClickListener?.onDismiss(mAdded)
     }
 }

@@ -46,6 +46,8 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
 
     private var currentPhotoPath: String = ""
 
+    private var previousIndex = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
@@ -119,6 +121,8 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
             ) {
                 if (parentView!!.selectedItem.toString() == "Other...") {
                     addAnimalType()
+                } else {
+                    previousIndex = position
                 }
             }
 
@@ -138,7 +142,12 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
         val adapter: ArrayAdapter<CharSequence> = spnType.adapter as ArrayAdapter<CharSequence>
         adapter.insert(name, 0)
         spnType.setSelection(0)
+    }
 
+    override fun onDismiss(added: Boolean) {
+        if (!added) {
+            spnType.setSelection(previousIndex)
+        }
     }
 
 

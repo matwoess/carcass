@@ -26,6 +26,7 @@ import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
 import com.mathias.android.carcass.R
 import com.mathias.android.carcass.model.Carcass
 import java.text.SimpleDateFormat
+import java.util.*
 
 
 class BottomSheetInfo : BottomSheetDialogFragment() {
@@ -70,7 +71,7 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         btnShowPicture = view.findViewById(R.id.btn_show_picture)
         txtType.text = carcass.type?.name
         txtDescription.text = carcass.description
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm");
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         txtReported.text = dateFormat.format(carcass.reportedAt!!)
         Log.i(TAG, geocoder.toString())
         val addresses: List<Address> = geocoder.getFromLocation(

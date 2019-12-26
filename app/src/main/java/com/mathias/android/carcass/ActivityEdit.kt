@@ -79,7 +79,7 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
         txtTime = findViewById(R.id.txt_current_time)
         txtLocation = findViewById(R.id.txt_current_location)
         initSpinner()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm");
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         txtTime.text = dateFormat.format(reportedAt)
         Log.i(TAG, geocoder.toString())
         val addresses: List<Address> = geocoder.getFromLocation(
@@ -207,7 +207,8 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val timeStamp: String =
+            SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
             "JPEG_${timeStamp}_",

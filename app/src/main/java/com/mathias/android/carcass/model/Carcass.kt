@@ -1,6 +1,5 @@
 package com.mathias.android.carcass.model
 
-import android.net.Uri
 import com.google.android.gms.maps.model.LatLng
 
 class Carcass {

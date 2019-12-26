@@ -15,16 +15,12 @@ import com.mathias.android.carcass.model.Carcass
 import java.util.*
 import kotlin.collections.HashMap
 
-class FireDBHelper {
+class FireDBHelper(map: GoogleMap) {
     private lateinit var mDBCarcassRef: DatabaseReference
     private lateinit var mDBAnimalTypeRef: DatabaseReference
     private lateinit var mDBStorage: FirebaseStorage
     private lateinit var mDBStorageRef: StorageReference
-    private val mMap: GoogleMap
-
-    constructor(map: GoogleMap) {
-        mMap = map
-    }
+    private val mMap: GoogleMap = map
 
     fun initFirebaseDB() {
         Log.i(TAG, "initialize Firebase DB")

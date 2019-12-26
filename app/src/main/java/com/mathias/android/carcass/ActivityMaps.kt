@@ -218,7 +218,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         val lat = bundle.getDouble(CARCASS_LOCATION_LAT)
         val lng = bundle.getDouble(CARCASS_LOCATION_LNG)
         var animalType = animalTypes.values.stream()
-            .filter{t -> t.name == type}
+            .filter { t -> t.name == type }
             .findFirst()
             .orElse(null)
         if (animalType == null) animalType = AnimalType(type!!)
@@ -254,7 +254,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     }
 
     companion object {
-        private const val TAG = "ActivityMaps";
+        private const val TAG = "ActivityMaps"
 
         lateinit var geocoder: Geocoder
         lateinit var fireDBHelper: FireDBHelper

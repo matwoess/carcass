@@ -1,7 +1,5 @@
 package com.mathias.android.carcass.model
 
-import com.google.android.gms.maps.model.LatLng
-
 class LatLngDB {
     var lat: Double = .0
     var lng: Double = .0

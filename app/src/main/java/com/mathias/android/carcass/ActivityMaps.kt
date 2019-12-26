@@ -37,6 +37,7 @@ import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
 import com.mathias.android.carcass.FireDBHelper.Companion.markers
 import com.mathias.android.carcass.model.AnimalType
 import com.mathias.android.carcass.model.Carcass
+import com.mathias.android.carcass.sheets.BottomSheetInfo
 import java.io.File
 import java.util.*
 
@@ -216,7 +217,12 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         val time = bundle.getLong(CARCASS_TIME)
         val lat = bundle.getDouble(CARCASS_LOCATION_LAT)
         val lng = bundle.getDouble(CARCASS_LOCATION_LNG)
-        return Carcass(AnimalType(type!!), description, time, LatLng(lat, lng))
+        var animalType = animalTypes.values.stream()
+            .filter{t -> t.name == type}
+            .findFirst()
+            .orElse(null)
+        if (animalType == null) animalType = AnimalType(type!!)
+        return Carcass(animalType, description, time, LatLng(lat, lng))
     }
 
     override fun onResume() {

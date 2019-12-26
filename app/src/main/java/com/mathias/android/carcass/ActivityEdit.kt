@@ -1,6 +1,5 @@
 package com.mathias.android.carcass
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.location.Address
@@ -10,7 +9,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -20,13 +18,14 @@ import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
 import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
 import com.mathias.android.carcass.model.AnimalType
+import com.mathias.android.carcass.sheets.BottomSheetAnimalType
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.min
 
-class ActivityEdit : AppCompatActivity() {
+class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
     private lateinit var spnType: Spinner
     private lateinit var txtDescription: TextView
     private lateinit var txtTime: TextView
@@ -74,15 +73,7 @@ class ActivityEdit : AppCompatActivity() {
         txtDescription = findViewById(R.id.txt_animal_description)
         txtTime = findViewById(R.id.txt_current_time)
         txtLocation = findViewById(R.id.txt_current_location)
-        val adapter =
-            ArrayAdapter<CharSequence>(this, R.layout.support_simple_spinner_dropdown_item)
-        animalTypes.values.forEach { t -> adapter.add(t.name) }
-        adapter.add("Other...")
-        spnType.adapter = adapter
-        if (animalType != null) {
-            val idx = adapter.getPosition(animalType?.name)
-            spnType.setSelection(idx)
-        }
+        initSpinner()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm");
         txtTime.text = dateFormat.format(reportedAt)
         Log.i(TAG, geocoder.toString())
@@ -93,18 +84,51 @@ class ActivityEdit : AppCompatActivity() {
         )
         txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
         txtDescription.text = description
-        val ofcListener = View.OnFocusChangeListener { v: View, hasFocus: Boolean ->
-            if (!hasFocus) {
-                val imm: InputMethodManager =
-                    v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(v.windowToken, 0)
-            }
-        }
-        txtDescription.onFocusChangeListener = ofcListener
         imageView = findViewById(R.id.img_view_report)
         if (imageUrl != null) {
             Glide.with(this).load(imageUrl).into(imageView)
         }
+    }
+
+    private fun initSpinner() {
+        val adapter =
+            ArrayAdapter<CharSequence>(this, R.layout.support_simple_spinner_dropdown_item)
+        animalTypes.values.forEach { t -> adapter.add(t.name) }
+        adapter.add("Other...")
+        spnType.adapter = adapter
+        if (animalType != null) {
+            val idx = adapter.getPosition(animalType?.name)
+            spnType.setSelection(idx)
+        }
+        spnType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parentView: AdapterView<*>?,
+                selectedItemView: View,
+                position: Int,
+                id: Long
+            ) {
+                if (parentView!!.selectedItem.toString() == "Other...") {
+                    addAnimalType()
+                }
+            }
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {}
+        }
+    }
+
+    private fun addAnimalType() {
+        Log.i(TAG, "add animal type")
+        val sheet = BottomSheetAnimalType().newInstance()
+        sheet.show(supportFragmentManager, "New animal type")
+    }
+
+    override fun onAnimalTypeSaved(name: String) {
+        Log.i(TAG, "received new type")
+        ActivityMaps.fireDBHelper.addAnimalType(AnimalType(name))
+        val adapter: ArrayAdapter<CharSequence> = spnType.adapter as ArrayAdapter<CharSequence>
+        adapter.insert(name, 0)
+        spnType.setSelection(0)
+
     }
 
 

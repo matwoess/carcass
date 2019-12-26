@@ -81,6 +81,12 @@ class FireDBHelper {
         return imgRef.delete().isSuccessful
     }
 
+    fun addAnimalType(animalType: AnimalType): String {
+        val ref = mDBAnimalTypeRef.push()
+        ref.setValue(animalType)
+        return ref.key!!
+    }
+
     fun addMarker(
         ref: String,
         carcass: Carcass
@@ -140,7 +146,7 @@ class FireDBHelper {
             if (animalTypes.containsKey(snapshot.key)) {
                 Log.i(TAG, "update entry")
                 val c = snapshot.getValue(AnimalType::class.java)!!
-                animalTypes[snapshot.key!!]!!.name = c.name
+                animalTypes[snapshot.key!!]?.updateValues(c)
             }
         }
 

@@ -1,4 +1,4 @@
-package com.mathias.android.carcass
+package com.mathias.android.carcass.sheets
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -17,11 +17,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.mathias.android.carcass.ActivityEdit
 import com.mathias.android.carcass.ActivityEdit.Companion.EXISTING_KEY
 import com.mathias.android.carcass.ActivityMaps.Companion.EDIT_REQUEST_CODE
 import com.mathias.android.carcass.ActivityMaps.Companion.fireDBHelper
 import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
+import com.mathias.android.carcass.R
 import com.mathias.android.carcass.model.Carcass
 import java.text.SimpleDateFormat
 
@@ -100,7 +102,6 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         AlertDialog.Builder(context)
             .setTitle("Report")
             .setMessage("Do you want to flag this carcass location as out of date or removed?")
-            .setIcon(android.R.drawable.ic_dialog_alert)
             .setPositiveButton(android.R.string.yes) { _, _ -> flagCarcass() }
             .setNegativeButton(android.R.string.no, null).show()
     }
@@ -123,7 +124,6 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         AlertDialog.Builder(context)
             .setTitle("Remove")
             .setMessage("Do you want to permanently delete this location?")
-            .setIcon(android.R.drawable.ic_dialog_alert)
             .setPositiveButton(android.R.string.yes) { _, _ -> deleteCarcass() }
             .setNegativeButton(android.R.string.no, null).show()
     }

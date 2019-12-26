@@ -8,7 +8,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -62,9 +62,7 @@ class BottomSheetAnimalType : BottomSheetDialogFragment() {
             }
         })
         if (mTxtName.requestFocus()) {
-            val imm: InputMethodManager? =
-                context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-            imm?.showSoftInput(mTxtName, 0)
+            dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         }
     }
 

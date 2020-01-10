@@ -82,7 +82,7 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         txtTime.text = dateFormat.format(reportedAt)
         Log.i(TAG, geocoder.toString())
-        Log.i(TAG, location.toString());
+        Log.i(TAG, location.toString())
         try {
             val addresses: List<Address> = geocoder.getFromLocation(
                 location.latitude,

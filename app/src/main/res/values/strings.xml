@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Carcass</string>
-    <string name="title_activity_maps">Map</string>
     <string name="title_hide_flagged">Hide flagged carcasses</string>
     <string name="title_insert_demo_data">Insert demo data</string>
 </resources>

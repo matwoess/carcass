@@ -4,7 +4,7 @@ package com.mathias.android.carcass.model
 class AnimalType {
     var name: String = ""
 
-    constructor() {}
+    constructor()
     constructor(name: String) {
         this.name = name
     }

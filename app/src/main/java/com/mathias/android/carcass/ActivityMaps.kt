@@ -34,6 +34,7 @@ import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_TIME
 import com.mathias.android.carcass.ActivityEdit.Companion.CARCASS_TYPE
 import com.mathias.android.carcass.ActivityEdit.Companion.EXISTING_KEY
 import com.mathias.android.carcass.FireDBHelper.Companion.animalTypes
+import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
 import com.mathias.android.carcass.FireDBHelper.Companion.markers
 import com.mathias.android.carcass.model.AnimalType
 import com.mathias.android.carcass.model.Carcass
@@ -49,6 +50,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     private var requestingLocationUpdates: Boolean = true
     private lateinit var mFab: FloatingActionButton
     private var lastLocation: LatLng? = null
+    private var flaggedHidden: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +78,9 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
                 REQUESTING_LOCATION_UPDATES_KEY
             )
         }
+        if (savedInstanceState.keySet().contains(HIDE_FLAGGED)) {
+            flaggedHidden = savedInstanceState.getBoolean(HIDE_FLAGGED)
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -85,7 +90,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         fireDBHelper.initFirebaseDB()
         mMap.uiSettings.isZoomControlsEnabled = true
         initLocation()
-        mMap.setOnMarkerClickListener { latLng -> handleMarkerClick(mMap, latLng) }
+        mMap.setOnMarkerClickListener { latLng -> handleMarkerClick(latLng) }
     }
 
     private fun handleFabClick() {
@@ -96,7 +101,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         startActivityForResult(intent, ADD_REQUEST_CODE)
     }
 
-    private fun handleMarkerClick(mMap: GoogleMap, marker: Marker): Boolean {
+    private fun handleMarkerClick(marker: Marker): Boolean {
         showBottomSheet(markers[marker]!!)
         return true
     }
@@ -182,8 +187,26 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
                 if (animalTypes.isNotEmpty()) fireDBHelper.insertDemoData(lastLocation!!)
                 true
             }
+            R.id.hide_flagged -> {
+                showOrHideFlaggedMarkers()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val hideOrShow : MenuItem? = menu?.findItem(R.id.hide_flagged)
+        if (hideOrShow != null) {
+            hideOrShow.title = "${if (flaggedHidden) "Show" else "Hide"} flagged carcasses"
+        }
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    private fun showOrHideFlaggedMarkers() {
+        flaggedHidden = !flaggedHidden
+        markers.keys.forEach { m -> if (carcasses[m.tag]!!.flagged) m.isVisible = !flaggedHidden }
+        invalidateOptionsMenu()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -262,6 +285,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, requestingLocationUpdates)
+        outState.putBoolean(HIDE_FLAGGED, flaggedHidden)
         super.onSaveInstanceState(outState)
     }
 
@@ -274,6 +298,7 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
         private const val REQUEST_PERM_LOCATION = 100
         private const val ADD_REQUEST_CODE = 200
         private const val REQUESTING_LOCATION_UPDATES_KEY = "req-loc-upd"
+        private const val HIDE_FLAGGED = "hide-flagged"
         const val EDIT_REQUEST_CODE = 210
     }
 }

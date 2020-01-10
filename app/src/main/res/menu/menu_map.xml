@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/hide_flagged"
+        android:title="@string/title_hide_flagged"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_marker"/>
     <item android:id="@+id/demo_data"
-        android:title="Insert demo data" >
+        android:title="@string/title_insert_demo_data" >
     </item>
 </menu>

@@ -213,7 +213,9 @@ class FireDBHelper(map: GoogleMap) {
             .orElse(null)
             ?: return
         Log.i(TAG, "flagged = ${carcasses[key]!!.flagged}")
-        if (carcasses[key]!!.flagged) {
+        val carcass = carcasses[key]!!
+        marker.position = carcass.latLng()
+        if (carcass.flagged) {
             marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.yellow_dot))
         } else {
             marker.setIcon(null) // reset to default icon

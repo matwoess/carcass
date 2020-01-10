@@ -92,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/txt_reported"
             android:padding="8dp"
-            android:text="Eferdinger Str. 2, 4020 Linz, Austria"
+            android:text="N/A"
             android:textAlignment="textStart"
             android:textStyle="bold" />
     </RelativeLayout>

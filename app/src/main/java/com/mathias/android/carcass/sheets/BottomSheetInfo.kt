@@ -25,6 +25,7 @@ import com.mathias.android.carcass.ActivityMaps.Companion.geocoder
 import com.mathias.android.carcass.FireDBHelper.Companion.carcasses
 import com.mathias.android.carcass.R
 import com.mathias.android.carcass.model.Carcass
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -74,12 +75,18 @@ class BottomSheetInfo : BottomSheetDialogFragment() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         txtReported.text = dateFormat.format(carcass.reportedAt!!)
         Log.i(TAG, geocoder.toString())
-        val addresses: List<Address> = geocoder.getFromLocation(
-            carcass.location.lat,
-            carcass.location.lng,
-            1
-        )
-        txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
+        try {
+            val addresses: List<Address> = geocoder.getFromLocation(
+                carcass.location.lat,
+                carcass.location.lng,
+                1
+            )
+            if (addresses.isNotEmpty()) {
+                txtLocation.text = addresses[0].thoroughfare
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun updateUI() {

@@ -82,12 +82,19 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         txtTime.text = dateFormat.format(reportedAt)
         Log.i(TAG, geocoder.toString())
-        val addresses: List<Address> = geocoder.getFromLocation(
-            location.latitude,
-            location.longitude,
-            1
-        )
-        txtLocation.text = if (addresses.isNotEmpty()) addresses[0].thoroughfare else "N/A"
+        Log.i(TAG, location.toString());
+        try {
+            val addresses: List<Address> = geocoder.getFromLocation(
+                location.latitude,
+                location.longitude,
+                1
+            )
+            if (addresses.isNotEmpty()) {
+                txtLocation.text = addresses[0].thoroughfare
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         txtDescription.text = description
         txtDescription.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
             if (!hasFocus) {

@@ -114,8 +114,8 @@ class ActivityMaps : AppCompatActivity(), OnMapReadyCallback {
     private fun createLocationRequest(): LocationRequest {
         Log.i(TAG, "creating location request")
         return LocationRequest.create().apply {
-            interval = 15000
-            fastestInterval = 10000
+            interval = 25000
+            fastestInterval = 20000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
     }

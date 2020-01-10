@@ -201,7 +201,7 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.i(TAG, "picture taken")
+        Log.i(TAG, "activity result")
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) setPic()
     }
 
@@ -220,6 +220,7 @@ class ActivityEdit : AppCompatActivity(), IBottomSheetAnimalTypeListener {
     }
 
     private fun setPic() {
+        if (currentPhotoPath.isBlank()) return
         val targetW: Int = imageView.width
         val targetH: Int = imageView.height
         val bmOptions = BitmapFactory.Options().apply {
